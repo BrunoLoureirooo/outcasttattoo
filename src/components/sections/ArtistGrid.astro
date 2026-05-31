@@ -1,0 +1,60 @@
+---
+/**
+ * ArtistGrid.astro — grid of all artist cards
+ * Used on: /sobre
+ * Data-driven from artists.json — no hardcoding.
+ */
+import ArtistCard from '@/components/ui/ArtistCard.astro'
+import { strings } from '@/content/strings.pt.ts'
+import artists from '@/data/artists.json'
+
+const { sobre } = strings
+---
+
+<section class="artist-grid-section" aria-labelledby="artists-heading">
+  <div class="container">
+    <header class="artist-grid-section__header reveal" data-pending>
+      <h2 id="artists-heading" class="artist-grid-section__heading">
+        {sobre.heading}
+      </h2>
+      <p class="artist-grid-section__intro">{sobre.intro}</p>
+    </header>
+
+    <div class="artist-grid">
+      {artists.map((artist) => (
+        <ArtistCard {...artist} />
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .artist-grid-section {
+    padding-block: var(--section-pad);
+  }
+
+  .artist-grid-section__header {
+    margin-bottom: var(--space-16);
+  }
+
+  .artist-grid-section__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: 900;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-4);
+  }
+
+  .artist-grid-section__intro {
+    font-size: var(--text-lg);
+    color: var(--color-muted);
+    max-width: 50ch;
+  }
+
+  .artist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+  }
+</style>

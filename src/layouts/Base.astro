@@ -1,0 +1,81 @@
+---
+/**
+ * Base.astro — HTML shell for all pages
+ * Handles: meta, OG tags, fonts, global CSS, JSON-LD, lang
+ */
+import '@/styles/global.css'
+import { strings } from '@/content/strings.pt.ts'
+
+interface Props {
+  title:       string
+  description: string
+  ogImage?:    string
+  lang?:       string
+}
+
+const {
+  title,
+  description,
+  ogImage = '/images/og/home.jpg',
+  lang = 'pt',
+} = Astro.props
+
+const canonicalUrl = new URL(Astro.url.pathname, strings.meta.siteUrl).href
+const ogImageUrl   = new URL(ogImage, strings.meta.siteUrl).href
+
+const jsonLd = {
+  '@context':   'https://schema.org',
+  '@type':      'TattooParlor',
+  name:          strings.jsonLd.name,
+  description:   strings.jsonLd.description,
+  url:           strings.meta.siteUrl,
+  telephone:     strings.jsonLd.telephone,
+  sameAs:       [strings.jsonLd.instagram],
+  priceRange:    strings.jsonLd.priceRange,
+  address: {
+    '@type':           'PostalAddress',
+    streetAddress:      strings.jsonLd.address.street,
+    addressLocality:    strings.jsonLd.address.city,
+    postalCode:         strings.jsonLd.address.postal,
+    addressCountry:     strings.jsonLd.address.country,
+  },
+  openingHours: strings.jsonLd.hours,
+}
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#141414" />
+
+    <!-- Primary meta -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- OpenGraph -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:site_name"   content={strings.meta.siteName} />
+    <meta property="og:title"       content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url"         content={canonicalUrl} />
+    <meta property="og:image"       content={ogImageUrl} />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image"       content={ogImageUrl} />
+
+    <!-- Favicon placeholder -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- JSON-LD structured data — only on every page for brand visibility -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

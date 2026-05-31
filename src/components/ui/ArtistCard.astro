@@ -1,0 +1,284 @@
+---
+/**
+ * ArtistCard.astro — individual artist display card
+ * Used on: /sobre
+ */
+import { Image } from 'astro:assets'
+import { strings } from '@/content/strings.pt.ts'
+
+interface Props {
+  id:          string
+  name:        string
+  bio:         string
+  specialties: string[]
+  booksy_url:  string
+  portrait:    string
+  portfolio:   string[]
+}
+
+const { id, name, bio, specialties, booksy_url, portrait, portfolio } = Astro.props
+const { artistCard, sobre } = strings
+
+const dialogId = `portfolio-${id}`
+---
+
+<article class="artist-card reveal" data-pending>
+  <div class="artist-card__image-wrap">
+    <img
+      src={portrait}
+      alt={name}
+      class="artist-card__portrait"
+      width="400"
+      height="500"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+
+  <div class="artist-card__body">
+    <h3 class="artist-card__name">{name}</h3>
+
+    <ul class="artist-card__specialties" aria-label={sobre.specialties}>
+      {specialties.map(s => (
+        <li class="artist-card__tag">{s}</li>
+      ))}
+    </ul>
+
+    <p class="artist-card__bio">{bio}</p>
+
+    <div class="artist-card__actions">
+      <button
+        class="artist-card__portfolio-btn"
+        aria-expanded="false"
+        aria-controls={dialogId}
+        data-dialog-trigger={dialogId}
+      >
+        {artistCard.viewMore}
+      </button>
+
+      <a
+        href={booksy_url}
+        class="artist-card__book"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {artistCard.bookCta}
+      </a>
+    </div>
+  </div>
+</article>
+
+<!-- Portfolio lightbox using native <dialog> -->
+<dialog class="portfolio-dialog" id={dialogId} aria-label={strings.lightbox.ariaLabel.replace('{name}', name)}>
+  <button class="portfolio-dialog__close" data-dialog-close aria-label={strings.lightbox.close}>
+    ✕
+  </button>
+  <div class="portfolio-dialog__grid">
+    {portfolio.map((src, i) => (
+      <img
+        src={src}
+        alt={`${name} — trabalho ${i + 1}`}
+        class="portfolio-dialog__img"
+        loading="lazy"
+        decoding="async"
+        width="600"
+        height="600"
+      />
+    ))}
+  </div>
+</dialog>
+
+<style>
+  .artist-card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    background-color: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+  }
+
+  .artist-card__image-wrap {
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+  }
+
+  .artist-card__portrait {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-slow) var(--ease-out-expo);
+    filter: grayscale(20%);
+  }
+
+  .artist-card:hover .artist-card__portrait {
+    transform: scale(1.03);
+    filter: grayscale(0%);
+  }
+
+  .artist-card__body {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .artist-card__name {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+  }
+
+  .artist-card__specialties {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+  }
+
+  .artist-card__tag {
+    font-size: var(--text-xs);
+    font-family: var(--font-body);
+    color: var(--color-muted);
+    border: var(--border-width) solid var(--color-border);
+    padding: var(--space-1) var(--space-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .artist-card__bio {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    line-height: 1.7;
+    max-width: 55ch;
+  }
+
+  .artist-card__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    margin-top: auto;
+    padding-top: var(--space-4);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .artist-card__portfolio-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: color var(--duration-fast) ease;
+    padding: 0;
+  }
+
+  .artist-card__portfolio-btn:hover {
+    color: var(--color-ink);
+  }
+
+  .artist-card__book {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-accent-dim);
+    transition: text-decoration-color var(--duration-fast) ease;
+  }
+
+  .artist-card__book:hover {
+    text-decoration-color: var(--color-accent);
+  }
+
+  /* Portfolio dialog */
+  .portfolio-dialog {
+    background-color: var(--color-bg);
+    border: var(--border-width) solid var(--color-border);
+    color: var(--color-ink);
+    padding: var(--space-8);
+    max-width: min(90vw, 1000px);
+    max-height: 90vh;
+    overflow-y: auto;
+    position: fixed;
+    inset: 50% auto auto 50%;
+    translate: -50% -50%;
+  }
+
+  .portfolio-dialog::backdrop {
+    background-color: oklch(0 0 0 / 0.85);
+    backdrop-filter: blur(4px);
+  }
+
+  .portfolio-dialog__close {
+    position: sticky;
+    top: 0;
+    float: right;
+    background: none;
+    border: var(--border-width) solid var(--color-border);
+    color: var(--color-muted);
+    cursor: pointer;
+    font-size: var(--text-base);
+    padding: var(--space-2) var(--space-3);
+    transition: color var(--duration-fast) ease,
+                border-color var(--duration-fast) ease;
+    margin-bottom: var(--space-4);
+  }
+
+  .portfolio-dialog__close:hover {
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+
+  .portfolio-dialog__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-3);
+    clear: both;
+  }
+
+  .portfolio-dialog__img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .artist-card__portrait {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Minimal island: open/close native <dialog>
+  document.addEventListener('click', (e) => {
+    const trigger = (e.target as HTMLElement).closest('[data-dialog-trigger]')
+    if (trigger) {
+      const id = trigger.getAttribute('data-dialog-trigger')
+      const dialog = document.getElementById(id!) as HTMLDialogElement | null
+      dialog?.showModal()
+      trigger.setAttribute('aria-expanded', 'true')
+    }
+
+    const closeBtn = (e.target as HTMLElement).closest('[data-dialog-close]')
+    if (closeBtn) {
+      const dialog = closeBtn.closest('dialog') as HTMLDialogElement | null
+      dialog?.close()
+    }
+  })
+
+  document.querySelectorAll('dialog').forEach(dialog => {
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close()
+    })
+    dialog.addEventListener('close', () => {
+      const trigger = document.querySelector(`[data-dialog-trigger="${dialog.id}"]`)
+      trigger?.setAttribute('aria-expanded', 'false')
+    })
+  })
+</script>

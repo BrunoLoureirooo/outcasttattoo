@@ -1,0 +1,41 @@
+---
+import Base from '@/layouts/Base.astro'
+import Nav from '@/components/shared/Nav.astro'
+import Footer from '@/components/shared/Footer.astro'
+import ArtistGrid from '@/components/sections/ArtistGrid.astro'
+import LocationMap from '@/components/sections/LocationMap.astro'
+import { strings } from '@/content/strings.pt.ts'
+
+const { pages } = strings.meta
+---
+
+<Base
+  title={pages.sobre.title}
+  description={pages.sobre.description}
+  ogImage={pages.sobre.ogImage}
+>
+  <Nav />
+  <main id="main-content">
+    <ArtistGrid />
+    <LocationMap />
+  </main>
+  <Footer />
+</Base>
+
+<script>
+  const reveals = document.querySelectorAll<HTMLElement>('.reveal[data-pending]')
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          const el = entry.target as HTMLElement
+          el.style.transitionDelay = `${i * 0.08}s`
+          el.classList.add('is-visible')
+          observer.unobserve(el)
+        }
+      })
+    },
+    { threshold: 0.1 }
+  )
+  reveals.forEach(el => observer.observe(el))
+</script>

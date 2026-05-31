@@ -1,0 +1,347 @@
+---
+/**
+ * BookingForm.astro — booking form with body area SVG selector
+ * Used on: /marcar
+ * On submit: redirects to selected artist's Booksy URL.
+ */
+import { strings } from '@/content/strings.pt.ts'
+import artists from '@/data/artists.json'
+
+const { marcar } = strings
+---
+
+<form class="booking-form" id="booking-form" novalidate>
+  <!-- Artist selector -->
+  <div class="booking-form__field">
+    <label class="booking-form__label" for="artist">
+      {marcar.artist.label}
+    </label>
+    <select
+      class="booking-form__select"
+      id="artist"
+      name="artist"
+      required
+      aria-required="true"
+    >
+      <option value="" disabled selected>{marcar.artist.placeholder}</option>
+      {artists.map(a => (
+        <option value={a.booksy_url} data-name={a.name}>{a.name}</option>
+      ))}
+    </select>
+  </div>
+
+  <!-- Body area selector -->
+  <div class="booking-form__field">
+    <p class="booking-form__label" id="body-area-label">
+      {marcar.bodyArea.label}
+    </p>
+    <div
+      class="booking-form__body-selector"
+      role="group"
+      aria-labelledby="body-area-label"
+    >
+      <!-- SVG body map — front -->
+      <div class="body-map" aria-label="Frente">
+        <svg
+          viewBox="0 0 120 280"
+          xmlns="http://www.w3.org/2000/svg"
+          class="body-map__svg"
+          aria-hidden="true"
+        >
+          <!-- Head -->
+          <ellipse data-area="head" data-label="Cabeça"
+            cx="60" cy="25" rx="18" ry="22"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Neck -->
+          <rect data-area="neck" data-label="Pescoço"
+            x="53" y="46" width="14" height="12" rx="2"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Chest -->
+          <ellipse data-area="chest" data-label="Peito"
+            cx="60" cy="80" rx="28" ry="22"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Abdomen -->
+          <ellipse data-area="abdomen" data-label="Abdómen"
+            cx="60" cy="118" rx="22" ry="18"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Left arm -->
+          <rect data-area="arm-left" data-label="Braço esquerdo"
+            x="14" y="60" width="16" height="70" rx="8"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Right arm -->
+          <rect data-area="arm-right" data-label="Braço direito"
+            x="90" y="60" width="16" height="70" rx="8"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Left leg -->
+          <rect data-area="leg-left" data-label="Perna esquerda"
+            x="34" y="150" width="20" height="100" rx="10"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Right leg -->
+          <rect data-area="leg-right" data-label="Perna direita"
+            x="66" y="150" width="20" height="100" rx="10"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+        </svg>
+        <span class="body-map__label">Frente</span>
+      </div>
+
+      <!-- Back silhouette -->
+      <div class="body-map" aria-label="Costas">
+        <svg
+          viewBox="0 0 120 280"
+          xmlns="http://www.w3.org/2000/svg"
+          class="body-map__svg"
+          aria-hidden="true"
+        >
+          <!-- Head back -->
+          <ellipse data-area="head-back" data-label="Cabeça (costas)"
+            cx="60" cy="25" rx="18" ry="22"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Upper back -->
+          <ellipse data-area="upper-back" data-label="Costas superiores"
+            cx="60" cy="80" rx="28" ry="22"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Lower back -->
+          <ellipse data-area="lower-back" data-label="Costas inferiores"
+            cx="60" cy="118" rx="22" ry="18"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Left arm back -->
+          <rect data-area="arm-left-back" data-label="Braço esquerdo (costas)"
+            x="14" y="60" width="16" height="70" rx="8"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Right arm back -->
+          <rect data-area="arm-right-back" data-label="Braço direito (costas)"
+            x="90" y="60" width="16" height="70" rx="8"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Left leg back -->
+          <rect data-area="leg-left-back" data-label="Perna esquerda (costas)"
+            x="34" y="150" width="20" height="100" rx="10"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+          <!-- Right leg back -->
+          <rect data-area="leg-right-back" data-label="Perna direita (costas)"
+            x="66" y="150" width="20" height="100" rx="10"
+            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
+        </svg>
+        <span class="body-map__label">Costas</span>
+      </div>
+    </div>
+
+    <!-- Hidden input carries selected area value -->
+    <input type="hidden" id="body-area" name="body_area" />
+    <p class="booking-form__area-display" id="area-display" aria-live="polite">
+      {marcar.bodyArea.placeholder}
+    </p>
+  </div>
+
+  <!-- Project description -->
+  <div class="booking-form__field">
+    <label class="booking-form__label" for="description">
+      {marcar.description.label}
+    </label>
+    <textarea
+      class="booking-form__textarea"
+      id="description"
+      name="description"
+      rows="5"
+      placeholder={marcar.description.placeholder}
+      required
+      aria-required="true"
+    ></textarea>
+  </div>
+
+  <div class="booking-form__footer">
+    <button type="submit" class="booking-form__submit">
+      {marcar.submit}
+    </button>
+    <p class="booking-form__disclaimer">{marcar.disclaimer}</p>
+  </div>
+</form>
+
+<style>
+  .booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    max-width: 720px;
+  }
+
+  .booking-form__label {
+    display: block;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--space-3);
+  }
+
+  .booking-form__select,
+  .booking-form__textarea {
+    width: 100%;
+    background-color: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    padding: var(--space-3) var(--space-4);
+    transition: border-color var(--duration-fast) ease;
+    appearance: none;
+  }
+
+  .booking-form__select:focus,
+  .booking-form__textarea:focus {
+    border-color: var(--color-accent);
+    outline: none;
+  }
+
+  .booking-form__select::placeholder,
+  .booking-form__textarea::placeholder {
+    color: var(--color-muted);
+  }
+
+  .booking-form__textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  /* Body selector */
+  .booking-form__body-selector {
+    display: flex;
+    gap: var(--space-8);
+  }
+
+  .body-map {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .body-map__svg {
+    width: 100%;
+    max-width: 140px;
+  }
+
+  .body-map__label {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .body-map__area {
+    fill: var(--color-surface);
+    stroke: var(--color-border);
+    stroke-width: 1;
+    cursor: pointer;
+    transition: fill var(--duration-fast) ease,
+                stroke var(--duration-fast) ease;
+  }
+
+  .body-map__area:hover {
+    fill: oklch(from var(--color-accent) l c h / 0.2);
+    stroke: var(--color-accent-dim);
+  }
+
+  .body-map__area.selected,
+  .body-map__area[aria-pressed="true"] {
+    fill: oklch(from var(--color-accent) l c h / 0.35);
+    stroke: var(--color-accent);
+  }
+
+  .booking-form__area-display {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    margin-top: var(--space-3);
+    font-style: italic;
+  }
+
+  /* Submit */
+  .booking-form__footer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .booking-form__submit {
+    align-self: flex-start;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    background: transparent;
+    border: var(--border-width) solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-8);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-out-expo),
+      color var(--duration-fast) var(--ease-out-expo);
+  }
+
+  .booking-form__submit:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  .booking-form__disclaimer {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    max-width: 50ch;
+  }
+
+  @media (max-width: 480px) {
+    .booking-form__body-selector {
+      gap: var(--space-4);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .booking-form__select,
+    .booking-form__textarea,
+    .body-map__area,
+    .booking-form__submit {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Body area selection
+  const areas = document.querySelectorAll<SVGElement>('.body-map__area')
+  const bodyAreaInput = document.getElementById('body-area') as HTMLInputElement | null
+  const areaDisplay   = document.getElementById('area-display')
+
+  areas.forEach(area => {
+    const activate = () => {
+      areas.forEach(a => {
+        a.classList.remove('selected')
+        a.setAttribute('aria-pressed', 'false')
+      })
+      area.classList.add('selected')
+      area.setAttribute('aria-pressed', 'true')
+      const label = area.getAttribute('data-label') ?? ''
+      if (bodyAreaInput) bodyAreaInput.value = area.getAttribute('data-area') ?? ''
+      if (areaDisplay)   areaDisplay.textContent = label
+    }
+
+    area.addEventListener('click', activate)
+    area.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        activate()
+      }
+    })
+  })
+
+  // Form submit — redirect to Booksy
+  const form = document.getElementById('booking-form') as HTMLFormElement | null
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault()
+    const artistSelect = form.elements.namedItem('artist') as HTMLSelectElement
+    const booksyUrl = artistSelect.value
+    if (booksyUrl) window.open(booksyUrl, '_blank', 'noopener,noreferrer')
+  })
+</script>

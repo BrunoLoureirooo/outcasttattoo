@@ -1,0 +1,67 @@
+[
+  {
+    "id": "johnny",
+    "name": "Johnny",
+    "bio": "Especialista em blackwork e dotwork com influências de arte urbana e ilustração.",
+    "specialties": ["Blackwork", "Dotwork", "Ilustração"],
+    "booksy_url": "https://booksy.com",
+    "portrait": "/images/artists/johnny.webp",
+    "portfolio": [
+      "/images/artists/johnny-1.webp",
+      "/images/artists/johnny-2.webp",
+      "/images/artists/johnny-3.webp"
+    ]
+  },
+  {
+    "id": "daniela",
+    "name": "Daniela",
+    "bio": "Arte fineline e botânica com um toque delicado e preciso.",
+    "specialties": ["Fineline", "Botânica", "Geométrico"],
+    "booksy_url": "https://booksy.com",
+    "portrait": "/images/artists/daniela.webp",
+    "portfolio": [
+      "/images/artists/daniela-1.webp",
+      "/images/artists/daniela-2.webp",
+      "/images/artists/daniela-3.webp"
+    ]
+  },
+  {
+    "id": "diogo",
+    "name": "Diogo",
+    "bio": "Ilustração detalhada com raízes em arte japonesa e neo-tradicional.",
+    "specialties": ["Neo-tradicional", "Japonês", "Ilustração"],
+    "booksy_url": "https://booksy.com",
+    "portrait": "/images/artists/diogo.webp",
+    "portfolio": [
+      "/images/artists/diogo-1.webp",
+      "/images/artists/diogo-2.webp",
+      "/images/artists/diogo-3.webp"
+    ]
+  },
+  {
+    "id": "andreia",
+    "name": "Andreia",
+    "bio": "Trabalhos realistas e retratos em preto e cinza com grande detalhe.",
+    "specialties": ["Realismo", "Retratos", "Preto e Cinza"],
+    "booksy_url": "https://booksy.com",
+    "portrait": "/images/artists/andreia.webp",
+    "portfolio": [
+      "/images/artists/andreia-1.webp",
+      "/images/artists/andreia-2.webp",
+      "/images/artists/andreia-3.webp"
+    ]
+  },
+  {
+    "id": "dai",
+    "name": "Dai",
+    "bio": "Anime, manga e personagens com um estilo expressivo e cheio de energia.",
+    "specialties": ["Anime", "Manga", "Personagens"],
+    "booksy_url": "https://booksy.com",
+    "portrait": "/images/artists/dai.webp",
+    "portfolio": [
+      "/images/artists/dai-1.webp",
+      "/images/artists/dai-2.webp",
+      "/images/artists/dai-3.webp"
+    ]
+  }
+]

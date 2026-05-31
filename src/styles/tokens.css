@@ -1,0 +1,107 @@
+/* ==========================================================================
+   Design Tokens — Outcast Tattoo
+   Source of truth for all design values. See DESIGN.md for full spec.
+   Never hardcode these values in component <style> blocks.
+   ========================================================================== */
+
+:root {
+  /* -------------------------------------------------------------------------
+     Color
+     Strategy: Drenched — the surface is the darkness.
+     One warm ivory accent. No other colors.
+  -------------------------------------------------------------------------- */
+
+  /* Ground — true black, no hue tint */
+  --color-bg:          oklch(0.08 0.000 0);
+
+  /* Panels, cards, lifted surfaces */
+  --color-surface:     oklch(0.13 0.000 0);
+
+  /* Borders, dividers, subtle structure */
+  --color-border:      oklch(0.22 0.000 0);
+
+  /* Primary text — near-white, pure */
+  --color-ink:         oklch(0.96 0.000 0);
+
+  /* Secondary text, metadata, captions */
+  --color-muted:       oklch(0.52 0.000 0);
+
+  /* Accent — warm ivory / aged bone. The single non-neutral.
+     Use for: logo highlights, motifs, hover states, active states, key emphasis */
+  --color-accent:      oklch(0.91 0.018 88);
+
+  /* Accent dimmed — pressed/active states */
+  --color-accent-dim:  oklch(0.75 0.014 88);
+
+  /* -------------------------------------------------------------------------
+     Typography
+     Display: Grenze Gotisch (gothic blackletter — headings, hero, logo)
+     Body:    IM Fell English (old-style serif — body, nav, UI, forms)
+  -------------------------------------------------------------------------- */
+
+  --font-display: 'Grenze Gotisch', serif;
+  --font-body:    'IM Fell English', serif;
+
+  /* Type scale — fluid, perfect fourth (1.333) ratio */
+  --text-xs:   clamp(0.69rem,  0.65rem + 0.20vw, 0.75rem);
+  --text-sm:   clamp(0.83rem,  0.78rem + 0.25vw, 0.94rem);
+  --text-base: clamp(1rem,     0.94rem + 0.30vw, 1.125rem);
+  --text-lg:   clamp(1.2rem,   1.10rem + 0.50vw, 1.4rem);
+  --text-xl:   clamp(1.44rem,  1.30rem + 0.70vw, 1.75rem);
+  --text-2xl:  clamp(1.73rem,  1.50rem + 1.15vw, 2.25rem);
+  --text-3xl:  clamp(2.07rem,  1.75rem + 1.60vw, 3rem);
+  --text-4xl:  clamp(2.5rem,   2.00rem + 2.50vw, 4.5rem);
+  --text-5xl:  clamp(3rem,     2.25rem + 3.75vw, 6rem);
+
+  /* -------------------------------------------------------------------------
+     Spacing
+  -------------------------------------------------------------------------- */
+
+  --space-1:  0.25rem;
+  --space-2:  0.50rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* Section vertical rhythm — fluid */
+  --section-pad: clamp(4rem, 8vw, 10rem);
+
+  /* Content container */
+  --container-max: 1200px;
+  --container-pad: clamp(1.25rem, 5vw, 3rem);
+
+  /* -------------------------------------------------------------------------
+     Borders & Radius
+     Keep sharp. Max 2px radius. Never rounded.
+  -------------------------------------------------------------------------- */
+
+  --radius-sm:  2px;
+  --radius-md:  2px;
+  --border-width: 1px;
+
+  /* -------------------------------------------------------------------------
+     Z-index scale
+  -------------------------------------------------------------------------- */
+
+  --z-base:    0;
+  --z-above:   10;
+  --z-sticky:  100;
+  --z-modal:   200;
+  --z-toast:   300;
+  --z-tooltip: 400;
+
+  /* -------------------------------------------------------------------------
+     Motion
+  -------------------------------------------------------------------------- */
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast:   0.2s;
+  --duration-base:   0.4s;
+  --duration-slow:   0.6s;
+  --duration-loader: 0.8s;
+}

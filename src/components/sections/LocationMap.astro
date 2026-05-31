@@ -1,0 +1,140 @@
+---
+/**
+ * LocationMap.astro — shop location with Google Maps embed
+ * Used on: /sobre
+ * Lazy-loaded iframe to avoid blocking page paint.
+ */
+import { strings } from '@/content/strings.pt.ts'
+
+const { sobre, jsonLd } = strings
+const addressLines = sobre.location.address.split('\n')
+---
+
+<section class="location" aria-labelledby="location-heading">
+  <div class="container">
+    <div class="location__inner">
+      <div class="location__info reveal" data-pending>
+        <h2 id="location-heading" class="location__heading">
+          {sobre.location.heading}
+        </h2>
+
+        <address class="location__address">
+          {addressLines.map(line => <p>{line}</p>)}
+        </address>
+
+        <div class="location__hours">
+          <p class="location__hours-label">{sobre.location.hours.label}</p>
+          <p>{sobre.location.hours.weekdays}</p>
+          <p>{sobre.location.hours.saturday}</p>
+          <p class="location__closed">{sobre.location.hours.closed}</p>
+        </div>
+
+        <a
+          href={`https://maps.google.com/?q=${encodeURIComponent(jsonLd.address.street + ', ' + jsonLd.address.city + ', Portugal')}`}
+          class="location__directions"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Ver no Google Maps ↗
+        </a>
+      </div>
+
+      <div class="location__map reveal" data-pending>
+        <iframe
+          title="Localização da Outcast Tattoo & Piercing"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3001.0!2d-8.8!3d39.7!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMznCsDQyJzAwLjAiTiA4wrA0OCcwMC4wIlc!5e0!3m2!1spt!2spt!4v1234567890"
+          width="100%"
+          height="100%"
+          style="border: 0;"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          aria-label="Mapa com a localização da Outcast Tattoo & Piercing em Leiria"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .location {
+    padding-block: var(--section-pad);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .location__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-12);
+    align-items: start;
+  }
+
+  .location__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-8);
+  }
+
+  .location__address {
+    font-style: normal;
+    color: var(--color-muted);
+    line-height: 1.8;
+    margin-bottom: var(--space-8);
+  }
+
+  .location__hours {
+    color: var(--color-muted);
+    line-height: 1.9;
+    margin-bottom: var(--space-8);
+  }
+
+  .location__hours-label {
+    color: var(--color-ink);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+
+  .location__closed {
+    opacity: 0.5;
+  }
+
+  .location__directions {
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-accent-dim);
+    transition: text-decoration-color var(--duration-fast) ease;
+  }
+
+  .location__directions:hover {
+    text-decoration-color: var(--color-accent);
+  }
+
+  .location__map {
+    aspect-ratio: 4 / 3;
+    border: var(--border-width) solid var(--color-border);
+    overflow: hidden;
+    filter: grayscale(100%) invert(90%);
+  }
+
+  .location__map iframe {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .location__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .location__map {
+      aspect-ratio: 16 / 9;
+    }
+  }
+</style>
