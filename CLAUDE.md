@@ -4,8 +4,9 @@
 
 Always read these before any implementation task:
 
-- **[PRODUCT.md](./PRODUCT.md)** — brand register, users, personality, design principles, anti-references
-- **[DESIGN.md](./DESIGN.md)** — color palette, typography, spacing, motion, component specs, banned patterns
+- **[PRODUCT.md](./claude-docs/PRODUCT.md)** — brand register, users, personality, design principles, anti-references
+- **[DESIGN.md](./claude-docs/DESIGN.md)** — color palette, typography, spacing, motion, component specs, banned patterns
+- **[ARCHITECTURE.md](./claude-docs/ARCHITECTURE.md)** — file structure, what each file does, layer responsibilities, key rules
 
 ---
 
@@ -19,7 +20,7 @@ Website for a tattoo shop based in Portugal. Goals: visually captivating, maximu
 - **Hosting**: Cloudflare Pages
 - **Domain**: Pending — use `*.pages.dev` for now
 - **Language**: Portuguese (PT) only — no i18n for now
-- **Styling**: CSS custom properties — see DESIGN.md for full token system
+- **Styling**: CSS custom properties — see [DESIGN.md](./claude-docs/DESIGN.md) for full token system
 
 ## Pages
 
@@ -151,7 +152,7 @@ Artists are **data-driven** — defined in `src/data/artists.json`, never hardco
 
 - Animated SVG logo — multiple paths draw in sequence via CSS `stroke-dashoffset`
 - Pure CSS animation, zero JS
-- Logo SVG to be provided by client — see DESIGN.md for animation spec
+- Logo SVG to be provided by client — see [DESIGN.md](./claude-docs/DESIGN.md) for animation spec
 - Reduced motion: instant reveal, no draw animation
 
 ---
