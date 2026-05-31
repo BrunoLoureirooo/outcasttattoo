@@ -5,6 +5,7 @@
  */
 import '@/styles/global.css'
 import { strings } from '@/content/strings.pt.ts'
+import Loader from '@/components/shared/Loader.astro'
 
 interface Props {
   title:       string
@@ -76,6 +77,7 @@ const jsonLd = {
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
+    <Loader />
     <slot />
   </body>
 </html>
