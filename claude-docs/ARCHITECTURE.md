@@ -135,7 +135,7 @@ Organized into four categories by scope and responsibility.
 ### `shared/` — used on every page
 
 **`Nav.astro`**
-Top navigation bar. Fixed position, appears on all pages. Desktop links + CSS-only mobile hamburger (hidden checkbox + label, no JS). Uses Astro's current path to highlight the active link.
+Top navigation bar. Fixed position, appears on all pages. Desktop links + mobile hamburger via minimal Astro island (toggles class, sets `aria-expanded` — required for WCAG AA). Uses Astro's current path to highlight the active link.
 
 **`Footer.astro`**
 Site-wide footer. Address, hours, Instagram link, copyright. Appears on all pages.

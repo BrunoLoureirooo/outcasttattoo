@@ -119,6 +119,14 @@
 
 <script>
   (function () {
+    // Skip on subsequent page visits within the same session
+    if (sessionStorage.getItem('loader-played')) {
+      const loader = document.getElementById('loader')
+      loader?.remove()
+      return
+    }
+    sessionStorage.setItem('loader-played', '1')
+
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     if (prefersReduced) {

@@ -80,22 +80,56 @@ export const strings = {
   // Booking page
   // -------------------------------------------------------------------------
   marcar: {
-    heading:     'Marcar Sessão',
-    intro:       'Descreve o teu projeto e escolhe o teu artista. Redirecionamos para a agenda do artista no Booksy.',
-    artist: {
-      label:       'Artista',
-      placeholder: 'Escolhe um artista',
+    heading: 'Marcar Sessão',
+    intro:   'Escolhe o serviço, o artista e descreve o teu projeto. A equipa entra em contacto para confirmar.',
+    services: {
+      label:    'O que pretendes?',
+      tattoo:   'Tatuagem',
+      piercing: 'Piercing',
     },
+    artistTattoo: {
+      label:       'Artista — Tatuagem',
+    },
+    artistPiercing: {
+      label:       'Artista — Piercing',
+    },
+    noPreference: 'Sem preferência',
     bodyArea: {
       label:       'Área do corpo',
-      placeholder: 'Seleciona uma área no diagrama',
+      placeholder: 'Seleciona uma ou mais áreas no diagrama',
+    },
+    piercingArea: {
+      label:       'Zona do piercing',
+      ear:         'Orelha',
+      body:        'Corpo',
+      placeholder: 'Seleciona a zona do piercing',
+    },
+    referenceLink: {
+      label:       'Link de referência',
+      placeholder: 'Instagram, Pinterest ou outro link com referências...',
     },
     description: {
       label:       'Descrição do projeto',
-      placeholder: 'Descreve a tua ideia — estilo, elementos, tamanho aproximado, referências...',
+      placeholder: 'Descreve a tua ideia — estilo, elementos, tamanho aproximado...',
     },
-    submit:  'Ir para marcação',
-    disclaimer: 'Serás redirecionado para o Booksy para confirmar data e hora com o artista escolhido.',
+    size: {
+      label: 'Tamanho aproximado',
+      small: { label: 'Pequena', ref: 'até 5cm · moeda / dedo' },
+      medium: { label: 'Média',   ref: '5–15cm · palmo / mão' },
+      large:  { label: 'Grande',  ref: '+15cm · antebraço / manga' },
+    },
+    contact: {
+      nameLabel:       'Nome',
+      namePlaceholder: 'O teu nome',
+      emailLabel:      'Email',
+      emailPlaceholder: 'O teu email',
+      phoneLabel:      'Telemóvel',
+      phonePlaceholder: '+351 9XX XXX XXX',
+    },
+    submit:     'Enviar pedido',
+    disclaimer: 'A equipa Outcast entrará em contacto para confirmar data e hora.',
+    success:    'Pedido enviado. Falamos em breve.',
+    error:      'Algo correu mal. Tenta novamente.',
   },
 
   // -------------------------------------------------------------------------

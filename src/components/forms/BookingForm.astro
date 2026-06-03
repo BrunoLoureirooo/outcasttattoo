@@ -1,211 +1,733 @@
 ---
-/**
- * BookingForm.astro — booking form with body area SVG selector
- * Used on: /marcar
- * On submit: redirects to selected artist's Booksy URL.
- */
 import { strings } from '@/content/strings.pt.ts'
 import artists from '@/data/artists.json'
 
 const { marcar } = strings
+const formspreeId = import.meta.env.PUBLIC_FORMSPREE_ID ?? 'PLACEHOLDER'
+const formspreeUrl = `https://formspree.io/f/${formspreeId}`
 ---
 
-<form class="booking-form" id="booking-form" novalidate>
-  <!-- Artist selector -->
-  <div class="booking-form__field">
-    <label class="booking-form__label" for="artist">
-      {marcar.artist.label}
-    </label>
-    <select
-      class="booking-form__select"
-      id="artist"
-      name="artist"
-      required
-      aria-required="true"
-    >
-      <option value="" disabled selected>{marcar.artist.placeholder}</option>
-      {artists.map(a => (
-        <option value={a.booksy_url} data-name={a.name}>{a.name}</option>
-      ))}
-    </select>
-  </div>
+<section class="booking" aria-labelledby="booking-heading">
+  <div class="container">
+    <header class="booking__header">
+      <h1 id="booking-heading" class="booking__heading">{marcar.heading}</h1>
+      <p class="booking__intro">{marcar.intro}</p>
+    </header>
 
-  <!-- Body area selector -->
-  <div class="booking-form__field">
-    <p class="booking-form__label" id="body-area-label">
-      {marcar.bodyArea.label}
-    </p>
-    <div
-      class="booking-form__body-selector"
-      role="group"
-      aria-labelledby="body-area-label"
+    <form
+      class="booking-form"
+      id="booking-form"
+      action={formspreeUrl}
+      method="POST"
+      novalidate
     >
-      <!-- SVG body map — front -->
-      <div class="body-map" aria-label="Frente">
-        <svg
-          viewBox="0 0 120 280"
-          xmlns="http://www.w3.org/2000/svg"
-          class="body-map__svg"
-          aria-hidden="true"
-        >
-          <!-- Head -->
-          <ellipse data-area="head" data-label="Cabeça"
-            cx="60" cy="25" rx="18" ry="22"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Neck -->
-          <rect data-area="neck" data-label="Pescoço"
-            x="53" y="46" width="14" height="12" rx="2"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Chest -->
-          <ellipse data-area="chest" data-label="Peito"
-            cx="60" cy="80" rx="28" ry="22"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Abdomen -->
-          <ellipse data-area="abdomen" data-label="Abdómen"
-            cx="60" cy="118" rx="22" ry="18"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Left arm -->
-          <rect data-area="arm-left" data-label="Braço esquerdo"
-            x="14" y="60" width="16" height="70" rx="8"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Right arm -->
-          <rect data-area="arm-right" data-label="Braço direito"
-            x="90" y="60" width="16" height="70" rx="8"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Left leg -->
-          <rect data-area="leg-left" data-label="Perna esquerda"
-            x="34" y="150" width="20" height="100" rx="10"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Right leg -->
-          <rect data-area="leg-right" data-label="Perna direita"
-            x="66" y="150" width="20" height="100" rx="10"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-        </svg>
-        <span class="body-map__label">Frente</span>
+      <!-- Honeypot -->
+      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+      <input type="hidden" name="_subject" value="Nova marcação — Outcast Tattoo" />
+
+      <!-- Hidden state carriers (JS populates before submit) -->
+      <input type="hidden" name="servico" id="f-service" />
+      <input type="hidden" name="artista_tatuagem" id="f-artist-tattoo" />
+      <input type="hidden" name="artista_piercing" id="f-artist-piercing" />
+      <input type="hidden" name="zonas_tatuagem" id="f-body-areas" />
+      <input type="hidden" name="zonas_piercing" id="f-piercing-areas" />
+      <input type="hidden" name="tamanho" id="f-size" />
+
+      <!-- ── Step 1: Service toggle ────────────────────────────── -->
+      <fieldset class="step step--service" id="step-service">
+        <legend class="step__label">{marcar.services.label}</legend>
+        <div class="service-toggles">
+          <button type="button" class="service-btn" data-service="tattoo" aria-pressed="false">
+            {marcar.services.tattoo}
+          </button>
+          <button type="button" class="service-btn" data-service="piercing" aria-pressed="false">
+            {marcar.services.piercing}
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- ── Step 2: Artist selection ──────────────────────────── -->
+      <div class="step step--artists" id="step-artists" hidden>
+
+        <!-- Tattoo artist picker -->
+        <div class="artist-picker" data-picker="tattoo" hidden>
+          <p class="step__label">{marcar.artistTattoo.label}</p>
+          <div class="artist-cards" role="group" aria-label={marcar.artistTattoo.label}>
+            {artists.map(a => (
+              <button
+                type="button"
+                class="artist-pick-card"
+                data-artist-id={a.id}
+                data-artist-name={a.name}
+                data-services={a.services.join(',')}
+                data-picker-target="tattoo"
+                aria-pressed="false"
+                aria-label={a.name}
+              >
+                <span class="artist-pick-card__avatar" aria-hidden="true">{a.name.charAt(0)}</span>
+                <div class="artist-pick-card__details">
+                  <span class="artist-pick-card__name">{a.name}</span>
+                  <div class="artist-pick-card__tags">
+                    {a.services.map(s => (
+                      <span class="artist-pick-card__tag">{s === 'tattoo' ? marcar.services.tattoo : marcar.services.piercing}</span>
+                    ))}
+                  </div>
+                </div>
+              </button>
+            ))}
+            <button
+              type="button"
+              class="artist-pick-card artist-pick-card--dice"
+              data-artist-id="no-preference"
+              data-artist-name={marcar.noPreference}
+              data-services="tattoo,piercing"
+              data-picker-target="tattoo"
+              aria-pressed="false"
+              aria-label={marcar.noPreference}
+            >
+              <span class="artist-pick-card__avatar" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+                </svg>
+              </span>
+              <div class="artist-pick-card__details">
+                <span class="artist-pick-card__name">{marcar.noPreference}</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Piercing artist picker -->
+        <div class="artist-picker" data-picker="piercing" hidden>
+          <p class="step__label">{marcar.artistPiercing.label}</p>
+          <div class="artist-cards" role="group" aria-label={marcar.artistPiercing.label}>
+            {artists.map(a => (
+              <button
+                type="button"
+                class="artist-pick-card"
+                data-artist-id={a.id}
+                data-artist-name={a.name}
+                data-services={a.services.join(',')}
+                data-picker-target="piercing"
+                aria-pressed="false"
+                aria-label={a.name}
+              >
+                <span class="artist-pick-card__avatar" aria-hidden="true">{a.name.charAt(0)}</span>
+                <div class="artist-pick-card__details">
+                  <span class="artist-pick-card__name">{a.name}</span>
+                  <div class="artist-pick-card__tags">
+                    {a.services.map(s => (
+                      <span class="artist-pick-card__tag">{s === 'tattoo' ? marcar.services.tattoo : marcar.services.piercing}</span>
+                    ))}
+                  </div>
+                </div>
+              </button>
+            ))}
+            <button
+              type="button"
+              class="artist-pick-card artist-pick-card--dice"
+              data-artist-id="no-preference"
+              data-artist-name={marcar.noPreference}
+              data-services="tattoo,piercing"
+              data-picker-target="piercing"
+              aria-pressed="false"
+              aria-label={marcar.noPreference}
+            >
+              <span class="artist-pick-card__avatar" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+                </svg>
+              </span>
+              <div class="artist-pick-card__details">
+                <span class="artist-pick-card__name">{marcar.noPreference}</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Back silhouette -->
-      <div class="body-map" aria-label="Costas">
-        <svg
-          viewBox="0 0 120 280"
-          xmlns="http://www.w3.org/2000/svg"
-          class="body-map__svg"
-          aria-hidden="true"
-        >
-          <!-- Head back -->
-          <ellipse data-area="head-back" data-label="Cabeça (costas)"
-            cx="60" cy="25" rx="18" ry="22"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Upper back -->
-          <ellipse data-area="upper-back" data-label="Costas superiores"
-            cx="60" cy="80" rx="28" ry="22"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Lower back -->
-          <ellipse data-area="lower-back" data-label="Costas inferiores"
-            cx="60" cy="118" rx="22" ry="18"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Left arm back -->
-          <rect data-area="arm-left-back" data-label="Braço esquerdo (costas)"
-            x="14" y="60" width="16" height="70" rx="8"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Right arm back -->
-          <rect data-area="arm-right-back" data-label="Braço direito (costas)"
-            x="90" y="60" width="16" height="70" rx="8"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Left leg back -->
-          <rect data-area="leg-left-back" data-label="Perna esquerda (costas)"
-            x="34" y="150" width="20" height="100" rx="10"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-          <!-- Right leg back -->
-          <rect data-area="leg-right-back" data-label="Perna direita (costas)"
-            x="66" y="150" width="20" height="100" rx="10"
-            class="body-map__area" tabindex="0" role="button" aria-pressed="false" />
-        </svg>
-        <span class="body-map__label">Costas</span>
+      <!-- ── Step 3a: Body area selector (tattoo) ───────────────── -->
+      <fieldset class="step step--body-area" id="step-body" hidden>
+        <legend class="step__label">{marcar.bodyArea.label}</legend>
+        <div class="body-selector">
+          <!-- Front silhouette -->
+          <div class="body-map">
+            <svg viewBox="0 0 120 270" xmlns="http://www.w3.org/2000/svg" class="body-map__svg" aria-hidden="true">
+              <ellipse data-area="head" data-label="Cabeça"
+                cx="60" cy="25" rx="18" ry="22"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Cabeça" />
+              <rect data-area="neck" data-label="Pescoço"
+                x="53" y="46" width="14" height="12" rx="2"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Pescoço" />
+              <ellipse data-area="chest" data-label="Peito"
+                cx="60" cy="78" rx="28" ry="20"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Peito" />
+              <ellipse data-area="abdomen" data-label="Abdómen"
+                cx="60" cy="114" rx="22" ry="18"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Abdómen" />
+              <!-- Arms split: upper arm + forearm -->
+              <rect data-area="upper-arm-left" data-label="Braço esquerdo (superior)"
+                x="14" y="60" width="15" height="34" rx="7"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Braço esquerdo superior" />
+              <rect data-area="forearm-left" data-label="Antebraço esquerdo"
+                x="14" y="96" width="15" height="32" rx="7"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Antebraço esquerdo" />
+              <rect data-area="upper-arm-right" data-label="Braço direito (superior)"
+                x="91" y="60" width="15" height="34" rx="7"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Braço direito superior" />
+              <rect data-area="forearm-right" data-label="Antebraço direito"
+                x="91" y="96" width="15" height="32" rx="7"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Antebraço direito" />
+              <!-- Legs: thigh + calf, 2px gap at knee -->
+              <rect data-area="thigh-left" data-label="Coxa esquerda"
+                x="34" y="132" width="20" height="55" rx="10"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Coxa esquerda" />
+              <rect data-area="calf-left" data-label="Canela esquerda"
+                x="34" y="189" width="20" height="62" rx="10"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Canela esquerda" />
+              <rect data-area="thigh-right" data-label="Coxa direita"
+                x="66" y="132" width="20" height="55" rx="10"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Coxa direita" />
+              <rect data-area="calf-right" data-label="Canela direita"
+                x="66" y="189" width="20" height="62" rx="10"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Canela direita" />
+            </svg>
+            <span class="body-map__label">Frente</span>
+          </div>
+          <!-- Back silhouette -->
+          <div class="body-map">
+            <svg viewBox="0 0 120 270" xmlns="http://www.w3.org/2000/svg" class="body-map__svg" aria-hidden="true">
+              <ellipse data-area="head-back" data-label="Cabeça (costas)"
+                cx="60" cy="25" rx="18" ry="22"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Cabeça (costas)" />
+              <ellipse data-area="upper-back" data-label="Costas superiores"
+                cx="60" cy="78" rx="28" ry="20"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Costas superiores" />
+              <ellipse data-area="lower-back" data-label="Costas inferiores"
+                cx="60" cy="114" rx="22" ry="18"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Costas inferiores" />
+              <rect data-area="upper-arm-left-back" data-label="Braço esquerdo superior (costas)"
+                x="14" y="60" width="15" height="34" rx="7"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Braço esquerdo superior (costas)" />
+              <rect data-area="forearm-left-back" data-label="Antebraço esquerdo (costas)"
+                x="14" y="96" width="15" height="32" rx="7"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Antebraço esquerdo (costas)" />
+              <rect data-area="upper-arm-right-back" data-label="Braço direito superior (costas)"
+                x="91" y="60" width="15" height="34" rx="7"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Braço direito superior (costas)" />
+              <rect data-area="forearm-right-back" data-label="Antebraço direito (costas)"
+                x="91" y="96" width="15" height="32" rx="7"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Antebraço direito (costas)" />
+              <rect data-area="ham-left" data-label="Isquiotibial esquerdo"
+                x="34" y="132" width="20" height="55" rx="10"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Isquiotibial esquerdo" />
+              <rect data-area="gemeo-left" data-label="Gémeo esquerdo"
+                x="34" y="189" width="20" height="62" rx="10"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Gémeo esquerdo" />
+              <rect data-area="ham-right" data-label="Isquiotibial direito"
+                x="66" y="132" width="20" height="55" rx="10"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Isquiotibial direito" />
+              <rect data-area="gemeo-right" data-label="Gémeo direito"
+                x="66" y="189" width="20" height="62" rx="10"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Gémeo direito" />
+            </svg>
+            <span class="body-map__label">Costas</span>
+          </div>
+        </div>
+        <p class="body-area-display" id="body-area-display" aria-live="polite">
+          {marcar.bodyArea.placeholder}
+        </p>
+      </fieldset>
+
+      <!-- ── Step 3b: Piercing selector ────────────────────────── -->
+      <fieldset class="step step--piercing" id="step-piercing" hidden>
+        <legend class="step__label">{marcar.piercingArea.label}</legend>
+
+        <!-- Tab navigation -->
+        <div class="piercing-tabs" role="tablist">
+          <button type="button" class="piercing-tab piercing-tab--active"
+            role="tab" aria-selected="true" aria-controls="piercing-panel-ear" id="tab-ear">
+            {marcar.piercingArea.ear}
+          </button>
+          <button type="button" class="piercing-tab"
+            role="tab" aria-selected="false" aria-controls="piercing-panel-body" id="tab-body">
+            {marcar.piercingArea.body}
+          </button>
+        </div>
+
+        <!-- Ear panel -->
+        <div class="piercing-panel" id="piercing-panel-ear" role="tabpanel" aria-labelledby="tab-ear">
+          <div class="ear-pair">
+
+            <!-- LEFT EAR -->
+            <div class="ear-wrap">
+              <svg viewBox="0 0 160 290" xmlns="http://www.w3.org/2000/svg" class="ear-svg" aria-hidden="true">
+                <!-- Outer helix — main ear silhouette -->
+                <path d="M 92,18 C 126,12 150,42 150,82 C 150,122 140,156 126,180 C 110,206 86,224 60,230 C 38,236 18,230 10,216 C 0,200 2,180 10,168 C 18,156 36,152 44,143 C 52,134 52,118 46,98 C 38,74 36,48 48,30 C 58,15 76,12 92,18 Z"
+                  fill="var(--color-surface)" stroke="var(--color-border)" stroke-width="2"/>
+                <!-- Inner helix rim -->
+                <path d="M 92,28 C 118,24 138,48 138,82 C 138,108 132,132 120,154"
+                  fill="none" stroke="var(--color-border)" stroke-width="1.3"/>
+                <!-- Anti-helix trunk -->
+                <path d="M 86,54 C 104,48 114,66 112,88 C 110,104 100,116 88,126 C 84,132 80,140 78,150"
+                  fill="none" stroke="var(--color-border)" stroke-width="1.3"/>
+                <!-- Anti-helix superior crus -->
+                <path d="M 88,126 C 92,136 94,150 88,162"
+                  fill="none" stroke="var(--color-border)" stroke-width="1.2"/>
+                <!-- Concha bowl -->
+                <ellipse cx="74" cy="164" rx="20" ry="26" fill="none" stroke="var(--color-border)" stroke-width="1.3"/>
+                <!-- Tragus -->
+                <path d="M 28,150 C 22,140 22,126 28,118 C 34,110 48,112 50,122"
+                  fill="none" stroke="var(--color-border)" stroke-width="1.8" stroke-linecap="round"/>
+                <!-- Lobe inner curve -->
+                <path d="M 10,184 C 6,198 10,214 22,222"
+                  fill="none" stroke="var(--color-border)" stroke-width="1.2"/>
+
+                <!-- PIERCING POINTS -->
+                <circle cx="132" cy="48"  r="6" class="piercing-point" data-piercing="helix-sup-left"    data-label="Hélix superior (esq.)"  role="checkbox" aria-checked="false" tabindex="0" aria-label="Hélix superior esquerda"/>
+                <circle cx="140" cy="84"  r="6" class="piercing-point" data-piercing="helix-mid-left"    data-label="Hélix médio (esq.)"     role="checkbox" aria-checked="false" tabindex="0" aria-label="Hélix médio esquerda"/>
+                <circle cx="130" cy="122" r="6" class="piercing-point" data-piercing="helix-inf-left"    data-label="Hélix inferior (esq.)"  role="checkbox" aria-checked="false" tabindex="0" aria-label="Hélix inferior esquerda"/>
+                <circle cx="86"  cy="54"  r="6" class="piercing-point" data-piercing="rook-left"         data-label="Rook (esq.)"            role="checkbox" aria-checked="false" tabindex="0" aria-label="Rook esquerda"/>
+                <circle cx="104" cy="80"  r="6" class="piercing-point" data-piercing="anti-helix-left"   data-label="Anti-hélix (esq.)"      role="checkbox" aria-checked="false" tabindex="0" aria-label="Anti-hélix esquerda"/>
+                <circle cx="74"  cy="142" r="6" class="piercing-point" data-piercing="daith-left"        data-label="Daith (esq.)"           role="checkbox" aria-checked="false" tabindex="0" aria-label="Daith esquerda"/>
+                <circle cx="74"  cy="164" r="6" class="piercing-point" data-piercing="concha-left"       data-label="Concha (esq.)"          role="checkbox" aria-checked="false" tabindex="0" aria-label="Concha esquerda"/>
+                <circle cx="32"  cy="134" r="6" class="piercing-point" data-piercing="tragus-left"       data-label="Trágus (esq.)"          role="checkbox" aria-checked="false" tabindex="0" aria-label="Trágus esquerda"/>
+                <circle cx="70"  cy="174" r="6" class="piercing-point" data-piercing="anti-tragus-left"  data-label="Anti-trágus (esq.)"     role="checkbox" aria-checked="false" tabindex="0" aria-label="Anti-trágus esquerda"/>
+                <circle cx="52"  cy="220" r="6" class="piercing-point" data-piercing="lobulo-left"       data-label="Lóbulo (esq.)"          role="checkbox" aria-checked="false" tabindex="0" aria-label="Lóbulo esquerda"/>
+              </svg>
+              <span class="ear-label">Esquerda</span>
+            </div>
+
+            <!-- RIGHT EAR (mirror) -->
+            <div class="ear-wrap">
+              <svg viewBox="0 0 160 290" xmlns="http://www.w3.org/2000/svg" class="ear-svg" aria-hidden="true">
+                <!-- Outer helix — mirrored -->
+                <path d="M 68,18 C 34,12 10,42 10,82 C 10,122 20,156 34,180 C 50,206 74,224 100,230 C 122,236 142,230 150,216 C 160,200 158,180 150,168 C 142,156 124,152 116,143 C 108,134 108,118 114,98 C 122,74 124,48 112,30 C 102,15 84,12 68,18 Z"
+                  fill="var(--color-surface)" stroke="var(--color-border)" stroke-width="2"/>
+                <!-- Inner helix rim -->
+                <path d="M 68,28 C 42,24 22,48 22,82 C 22,108 28,132 40,154"
+                  fill="none" stroke="var(--color-border)" stroke-width="1.3"/>
+                <!-- Anti-helix trunk -->
+                <path d="M 74,54 C 56,48 46,66 48,88 C 50,104 60,116 72,126 C 76,132 80,140 82,150"
+                  fill="none" stroke="var(--color-border)" stroke-width="1.3"/>
+                <!-- Anti-helix superior crus -->
+                <path d="M 72,126 C 68,136 66,150 72,162"
+                  fill="none" stroke="var(--color-border)" stroke-width="1.2"/>
+                <!-- Concha bowl -->
+                <ellipse cx="86" cy="164" rx="20" ry="26" fill="none" stroke="var(--color-border)" stroke-width="1.3"/>
+                <!-- Tragus -->
+                <path d="M 132,150 C 138,140 138,126 132,118 C 126,110 112,112 110,122"
+                  fill="none" stroke="var(--color-border)" stroke-width="1.8" stroke-linecap="round"/>
+                <!-- Lobe inner curve -->
+                <path d="M 150,184 C 154,198 150,214 138,222"
+                  fill="none" stroke="var(--color-border)" stroke-width="1.2"/>
+
+                <!-- PIERCING POINTS (mirrored) -->
+                <circle cx="28"  cy="48"  r="6" class="piercing-point" data-piercing="helix-sup-right"   data-label="Hélix superior (dir.)"  role="checkbox" aria-checked="false" tabindex="0" aria-label="Hélix superior direita"/>
+                <circle cx="20"  cy="84"  r="6" class="piercing-point" data-piercing="helix-mid-right"   data-label="Hélix médio (dir.)"     role="checkbox" aria-checked="false" tabindex="0" aria-label="Hélix médio direita"/>
+                <circle cx="30"  cy="122" r="6" class="piercing-point" data-piercing="helix-inf-right"   data-label="Hélix inferior (dir.)"  role="checkbox" aria-checked="false" tabindex="0" aria-label="Hélix inferior direita"/>
+                <circle cx="74"  cy="54"  r="6" class="piercing-point" data-piercing="rook-right"        data-label="Rook (dir.)"            role="checkbox" aria-checked="false" tabindex="0" aria-label="Rook direita"/>
+                <circle cx="56"  cy="80"  r="6" class="piercing-point" data-piercing="anti-helix-right"  data-label="Anti-hélix (dir.)"      role="checkbox" aria-checked="false" tabindex="0" aria-label="Anti-hélix direita"/>
+                <circle cx="86"  cy="142" r="6" class="piercing-point" data-piercing="daith-right"       data-label="Daith (dir.)"           role="checkbox" aria-checked="false" tabindex="0" aria-label="Daith direita"/>
+                <circle cx="86"  cy="164" r="6" class="piercing-point" data-piercing="concha-right"      data-label="Concha (dir.)"          role="checkbox" aria-checked="false" tabindex="0" aria-label="Concha direita"/>
+                <circle cx="128" cy="134" r="6" class="piercing-point" data-piercing="tragus-right"      data-label="Trágus (dir.)"          role="checkbox" aria-checked="false" tabindex="0" aria-label="Trágus direita"/>
+                <circle cx="90"  cy="174" r="6" class="piercing-point" data-piercing="anti-tragus-right" data-label="Anti-trágus (dir.)"     role="checkbox" aria-checked="false" tabindex="0" aria-label="Anti-trágus direita"/>
+                <circle cx="108" cy="220" r="6" class="piercing-point" data-piercing="lobulo-right"      data-label="Lóbulo (dir.)"          role="checkbox" aria-checked="false" tabindex="0" aria-label="Lóbulo direita"/>
+              </svg>
+              <span class="ear-label">Direita</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Body panel -->
+        <div class="piercing-panel" id="piercing-panel-body" role="tabpanel" aria-labelledby="tab-body" hidden>
+          <svg viewBox="0 0 200 320" xmlns="http://www.w3.org/2000/svg" class="piercing-svg" aria-hidden="true">
+            <!-- Head outline -->
+            <ellipse cx="100" cy="60" rx="38" ry="48" fill="none" stroke="var(--color-border)" stroke-width="1.5"/>
+            <!-- Neck -->
+            <rect x="90" y="106" width="20" height="20" rx="4" fill="none" stroke="var(--color-border)" stroke-width="1.5"/>
+            <!-- Torso -->
+            <path d="M 65,126 L 135,126 L 145,220 L 145,290 L 55,290 L 55,220 Z" fill="none" stroke="var(--color-border)" stroke-width="1.5"/>
+            <!-- Arms (simplified) -->
+            <rect x="30" y="126" width="28" height="90" rx="12" fill="none" stroke="var(--color-border)" stroke-width="1.5"/>
+            <rect x="142" y="126" width="28" height="90" rx="12" fill="none" stroke="var(--color-border)" stroke-width="1.5"/>
+
+            <!-- Face piercing points -->
+            <!-- Sobrancelha esquerda -->
+            <circle cx="80" cy="45" r="6" class="piercing-point" data-piercing="eyebrow-left" data-label="Sobrancelha esquerda" role="checkbox" aria-checked="false" tabindex="0" aria-label="Sobrancelha esquerda"/>
+            <!-- Sobrancelha direita -->
+            <circle cx="120" cy="45" r="6" class="piercing-point" data-piercing="eyebrow-right" data-label="Sobrancelha direita" role="checkbox" aria-checked="false" tabindex="0" aria-label="Sobrancelha direita"/>
+            <!-- Narina esquerda -->
+            <circle cx="88" cy="78" r="6" class="piercing-point" data-piercing="nostril-left" data-label="Narina esquerda" role="checkbox" aria-checked="false" tabindex="0" aria-label="Narina esquerda"/>
+            <!-- Septo -->
+            <circle cx="100" cy="84" r="6" class="piercing-point" data-piercing="septum" data-label="Septo" role="checkbox" aria-checked="false" tabindex="0" aria-label="Septo"/>
+            <!-- Narina direita -->
+            <circle cx="112" cy="78" r="6" class="piercing-point" data-piercing="nostril-right" data-label="Narina direita" role="checkbox" aria-checked="false" tabindex="0" aria-label="Narina direita"/>
+            <!-- Labret -->
+            <circle cx="100" cy="100" r="6" class="piercing-point" data-piercing="labret" data-label="Labret" role="checkbox" aria-checked="false" tabindex="0" aria-label="Labret"/>
+
+            <!-- Body piercing points -->
+            <!-- Mamilo esquerdo -->
+            <circle cx="78" cy="168" r="6" class="piercing-point" data-piercing="nipple-left" data-label="Mamilo esquerdo" role="checkbox" aria-checked="false" tabindex="0" aria-label="Mamilo esquerdo"/>
+            <!-- Mamilo direito -->
+            <circle cx="122" cy="168" r="6" class="piercing-point" data-piercing="nipple-right" data-label="Mamilo direito" role="checkbox" aria-checked="false" tabindex="0" aria-label="Mamilo direito"/>
+            <!-- Umbigo -->
+            <circle cx="100" cy="228" r="6" class="piercing-point" data-piercing="navel" data-label="Umbigo" role="checkbox" aria-checked="false" tabindex="0" aria-label="Umbigo"/>
+          </svg>
+        </div>
+
+        <p class="body-area-display" id="piercing-area-display" aria-live="polite">
+          {marcar.piercingArea.placeholder}
+        </p>
+      </fieldset>
+
+      <!-- ── Step 3c: Size selector (tattoo only) ─────────────── -->
+      <div class="step step--size" id="step-size" hidden>
+        <p class="step__label">{marcar.size.label} <span class="optional">opcional</span></p>
+        <div class="size-btns">
+          <button type="button" class="size-btn" data-size={marcar.size.small.label} aria-pressed="false">
+            <span class="size-btn__label">{marcar.size.small.label}</span>
+            <span class="size-btn__ref">{marcar.size.small.ref}</span>
+          </button>
+          <button type="button" class="size-btn" data-size={marcar.size.medium.label} aria-pressed="false">
+            <span class="size-btn__label">{marcar.size.medium.label}</span>
+            <span class="size-btn__ref">{marcar.size.medium.ref}</span>
+          </button>
+          <button type="button" class="size-btn" data-size={marcar.size.large.label} aria-pressed="false">
+            <span class="size-btn__label">{marcar.size.large.label}</span>
+            <span class="size-btn__ref">{marcar.size.large.ref}</span>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- Hidden input carries selected area value -->
-    <input type="hidden" id="body-area" name="body_area" />
-    <p class="booking-form__area-display" id="area-display" aria-live="polite">
-      {marcar.bodyArea.placeholder}
-    </p>
-  </div>
+      <!-- ── Step 4: Reference link ──────────────────────────────── -->
+      <div class="step step--field" id="step-reference" hidden>
+        <label class="step__label" for="reference-link">
+          {marcar.referenceLink.label} <span class="optional">opcional</span>
+        </label>
+        <input
+          type="url"
+          class="form-input"
+          id="reference-link"
+          name="referencia"
+          placeholder={marcar.referenceLink.placeholder}
+          autocomplete="off"
+        />
+      </div>
 
-  <!-- Project description -->
-  <div class="booking-form__field">
-    <label class="booking-form__label" for="description">
-      {marcar.description.label}
-    </label>
-    <textarea
-      class="booking-form__textarea"
-      id="description"
-      name="description"
-      rows="5"
-      placeholder={marcar.description.placeholder}
-      required
-      aria-required="true"
-    ></textarea>
-  </div>
+      <!-- ── Step 5: Description ─────────────────────────────────── -->
+      <div class="step step--field" id="step-description" hidden>
+        <label class="step__label" for="description">
+          {marcar.description.label}
+        </label>
+        <textarea
+          class="form-textarea"
+          id="description"
+          name="descricao"
+          rows="5"
+          placeholder={marcar.description.placeholder}
+          required
+          aria-required="true"
+        ></textarea>
+      </div>
 
-  <div class="booking-form__footer">
-    <button type="submit" class="booking-form__submit">
-      {marcar.submit}
-    </button>
-    <p class="booking-form__disclaimer">{marcar.disclaimer}</p>
+      <!-- ── Step 6: Contact ────────────────────────────────────── -->
+      <div class="step step--contact" id="step-contact" hidden>
+        <div class="contact-row">
+          <div class="contact-field">
+            <label class="step__label" for="contact-name">{marcar.contact.nameLabel}</label>
+            <input
+              type="text"
+              class="form-input"
+              id="contact-name"
+              name="nome"
+              placeholder={marcar.contact.namePlaceholder}
+              required
+              aria-required="true"
+              autocomplete="name"
+            />
+          </div>
+          <div class="contact-field">
+            <label class="step__label" for="contact-email">{marcar.contact.emailLabel}</label>
+            <input
+              type="email"
+              class="form-input"
+              id="contact-email"
+              name="email"
+              placeholder={marcar.contact.emailPlaceholder}
+              required
+              aria-required="true"
+              autocomplete="email"
+            />
+          </div>
+          <div class="contact-field">
+            <label class="step__label" for="contact-phone">{marcar.contact.phoneLabel} <span class="optional">opcional</span></label>
+            <input
+              type="tel"
+              class="form-input"
+              id="contact-phone"
+              name="telemovel"
+              placeholder={marcar.contact.phonePlaceholder}
+              autocomplete="tel"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Submit ──────────────────────────────────────────────── -->
+      <div class="step step--submit" id="step-submit" hidden>
+        <button type="submit" class="submit-btn" id="submit-btn">
+          {marcar.submit}
+        </button>
+        <p class="form-disclaimer">{marcar.disclaimer}</p>
+      </div>
+
+      <!-- Success / Error states -->
+      <div class="form-success" id="form-success" hidden aria-live="polite">
+        <p>{marcar.success}</p>
+      </div>
+      <div class="form-error" id="form-error" hidden aria-live="polite">
+        <p>{marcar.error}</p>
+      </div>
+    </form>
   </div>
-</form>
+</section>
 
 <style>
+  .booking {
+    padding-block: var(--section-pad);
+  }
+
+  .booking__header {
+    margin-bottom: var(--space-16);
+  }
+
+  .booking__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: 900;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-4);
+  }
+
+  .booking__intro {
+    font-size: var(--text-lg);
+    color: var(--color-muted);
+    max-width: 50ch;
+  }
+
+  /* ── Form layout ──────────────────────────────── */
+
   .booking-form {
     display: flex;
     flex-direction: column;
-    gap: var(--space-8);
-    max-width: 720px;
+    gap: var(--space-12);
   }
 
-  .booking-form__label {
-    display: block;
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .step__label {
     font-family: var(--font-body);
     font-size: var(--text-sm);
     color: var(--color-muted);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-1);
   }
 
-  .booking-form__select,
-  .booking-form__textarea {
-    width: 100%;
-    background-color: var(--color-surface);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-sm);
-    color: var(--color-ink);
+  /* ── Service toggle buttons ───────────────────── */
+
+  .service-toggles {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .service-btn {
     font-family: var(--font-body);
-    font-size: var(--text-base);
-    padding: var(--space-3) var(--space-4);
-    transition: border-color var(--duration-fast) ease;
-    appearance: none;
-  }
-
-  .booking-form__select:focus,
-  .booking-form__textarea:focus {
-    border-color: var(--color-accent);
-    outline: none;
-  }
-
-  .booking-form__select::placeholder,
-  .booking-form__textarea::placeholder {
+    font-size: var(--text-sm);
     color: var(--color-muted);
+    background: transparent;
+    border: var(--border-width) solid var(--color-border);
+    padding: var(--space-3) var(--space-8);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition:
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease;
   }
 
-  .booking-form__textarea {
-    resize: vertical;
-    min-height: 120px;
+  .service-btn[aria-pressed="true"] {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
   }
 
-  /* Body selector */
-  .booking-form__body-selector {
+  .service-btn:hover:not([aria-pressed="true"]) {
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+
+  /* ── Artist picker — character select ────────── */
+
+  .artist-picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .artist-picker + .artist-picker {
+    margin-top: var(--space-12);
+  }
+
+  .artist-cards {
+    display: flex;
+    gap: 3px;
+    height: 320px;
+  }
+
+  .artist-pick-card {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    cursor: pointer;
+    padding: 0;
+    transition:
+      flex 0.45s var(--ease-out-expo),
+      border-color var(--duration-fast) ease;
+  }
+
+  .artist-pick-card[aria-pressed="true"] {
+    flex: 5 1 0;
+    border-color: var(--color-accent);
+  }
+
+  .artist-pick-card.dimmed {
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  /* Initial — main visual in narrow state, ghost in expanded state */
+  .artist-pick-card__avatar {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: var(--text-4xl);
+    line-height: 1;
+    color: var(--color-muted);
+    transition:
+      font-size 0.45s var(--ease-out-expo),
+      color 0.3s ease,
+      transform 0.45s var(--ease-out-expo);
+    z-index: 1;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .artist-pick-card[aria-pressed="true"] .artist-pick-card__avatar {
+    position: absolute;
+    inset: 0;
+    font-size: clamp(8rem, 20vw, 14rem);
+    color: oklch(0.96 0 0 / 0.05);
+    z-index: 0;
+  }
+
+  /* Dice card SVG avatar */
+  .artist-pick-card--dice .artist-pick-card__avatar svg {
+    width: clamp(28px, 4vw, 40px);
+    height: clamp(28px, 4vw, 40px);
+    color: var(--color-muted);
+    transition: width 0.45s var(--ease-out-expo), height 0.45s var(--ease-out-expo);
+  }
+
+  .artist-pick-card--dice[aria-pressed="true"] .artist-pick-card__avatar svg {
+    width: clamp(60px, 12vw, 100px);
+    height: clamp(60px, 12vw, 100px);
+    color: oklch(0.96 0 0 / 0.05);
+  }
+
+  /* Details — hidden in narrow state, revealed when selected */
+  .artist-pick-card__details {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--space-5) var(--space-5) var(--space-5);
+    background: var(--color-surface);
+    border-top: var(--border-width) solid var(--color-border);
+    z-index: 2;
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.25s ease 0.2s,
+      transform 0.25s ease 0.2s;
+    pointer-events: none;
+  }
+
+  .artist-pick-card[aria-pressed="true"] .artist-pick-card__details {
+    opacity: 1;
+    transform: none;
+  }
+
+  .artist-pick-card__name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-xl);
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+    margin-bottom: var(--space-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .artist-pick-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .artist-pick-card__tag {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    border: var(--border-width) solid var(--color-border);
+    padding: 1px var(--space-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  /* ── Body area selector ───────────────────────── */
+
+  .body-selector {
     display: flex;
     gap: var(--space-8);
   }
@@ -220,7 +742,7 @@ const { marcar } = strings
 
   .body-map__svg {
     width: 100%;
-    max-width: 140px;
+    max-width: 130px;
   }
 
   .body-map__label {
@@ -235,8 +757,7 @@ const { marcar } = strings
     stroke: var(--color-border);
     stroke-width: 1;
     cursor: pointer;
-    transition: fill var(--duration-fast) ease,
-                stroke var(--duration-fast) ease;
+    transition: fill var(--duration-fast) ease, stroke var(--duration-fast) ease;
   }
 
   .body-map__area:hover {
@@ -244,34 +765,238 @@ const { marcar } = strings
     stroke: var(--color-accent-dim);
   }
 
-  .body-map__area.selected,
-  .body-map__area[aria-pressed="true"] {
+  .body-map__area[aria-checked="true"] {
     fill: oklch(from var(--color-accent) l c h / 0.35);
     stroke: var(--color-accent);
   }
 
-  .booking-form__area-display {
+  .body-area-display {
+    font-family: var(--font-body);
     font-size: var(--text-sm);
     color: var(--color-muted);
-    margin-top: var(--space-3);
     font-style: italic;
+    margin-top: var(--space-2);
   }
 
-  /* Submit */
-  .booking-form__footer {
+  /* ── Piercing selector ────────────────────────── */
+
+  .piercing-tabs {
+    display: flex;
+    gap: var(--space-2);
+    border-bottom: var(--border-width) solid var(--color-border);
+    margin-bottom: var(--space-6);
+  }
+
+  .piercing-tab {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: var(--space-2) var(--space-4);
+    margin-bottom: -1px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+  }
+
+  .piercing-tab--active,
+  .piercing-tab[aria-selected="true"] {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+  }
+
+  .piercing-panel {
     display: flex;
     flex-direction: column;
+    align-items: center;
+  }
+
+  .piercing-svg {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .ear-pair {
+    display: flex;
+    gap: var(--space-8);
+    justify-content: center;
+  }
+
+  .ear-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .ear-svg {
+    width: clamp(100px, 22vw, 160px);
+    height: auto;
+  }
+
+  .ear-label {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .piercing-label-text {
+    font-family: var(--font-body);
+    font-size: 10px;
+    fill: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .piercing-point {
+    fill: var(--color-surface);
+    stroke: var(--color-border);
+    stroke-width: 1.5;
+    cursor: pointer;
+    transition: fill var(--duration-fast) ease, stroke var(--duration-fast) ease;
+  }
+
+  .piercing-point:hover {
+    fill: oklch(from var(--color-accent) l c h / 0.3);
+    stroke: var(--color-accent-dim);
+  }
+
+  .piercing-point[aria-checked="true"] {
+    fill: var(--color-accent);
+    stroke: var(--color-accent);
+  }
+
+  /* ── Form fields ──────────────────────────────── */
+
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    max-width: 600px;
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    padding: var(--space-3) var(--space-4);
+    transition: border-color var(--duration-fast) ease;
+    appearance: none;
+  }
+
+  .form-input:focus,
+  .form-textarea:focus {
+    border-color: var(--color-accent);
+    outline: none;
+  }
+
+  .form-input::placeholder,
+  .form-textarea::placeholder {
+    color: var(--color-muted);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  /* ── Optional label ──────────────────────────── */
+
+  .optional {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    text-transform: none;
+    letter-spacing: 0;
+    opacity: 0.7;
+  }
+
+  /* ── Size selector ────────────────────────────── */
+
+  .size-btns {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .size-btn {
+    flex: 1 1 140px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-6);
+    background: transparent;
+    border: var(--border-width) solid var(--color-border);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color var(--duration-fast) ease;
+  }
+
+  .size-btn[aria-pressed="true"] {
+    border-color: var(--color-accent);
+  }
+
+  .size-btn:hover:not([aria-pressed="true"]) {
+    border-color: var(--color-muted);
+  }
+
+  .size-btn__label {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .size-btn[aria-pressed="true"] .size-btn__label {
+    color: var(--color-accent);
+  }
+
+  .size-btn__ref {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Contact fields ──────────────────────────── */
+
+  .contact-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: var(--space-4);
   }
 
-  .booking-form__submit {
-    align-self: flex-start;
+  .contact-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  @media (max-width: 640px) {
+    .contact-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Submit ───────────────────────────────────── */
+
+  .step--submit {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+  }
+
+  .submit-btn {
     font-family: var(--font-body);
     font-size: var(--text-sm);
     color: var(--color-accent);
     background: transparent;
     border: var(--border-width) solid var(--color-accent);
-    border-radius: var(--radius-sm);
     padding: var(--space-3) var(--space-8);
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -281,67 +1006,326 @@ const { marcar } = strings
       color var(--duration-fast) var(--ease-out-expo);
   }
 
-  .booking-form__submit:hover {
+  .submit-btn:hover {
     background-color: var(--color-accent);
     color: var(--color-bg);
   }
 
-  .booking-form__disclaimer {
-    font-size: var(--text-xs);
-    color: var(--color-muted);
-    max-width: 50ch;
+  .submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
-  @media (max-width: 480px) {
-    .booking-form__body-selector {
+  .form-disclaimer {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    max-width: 40ch;
+  }
+
+  .form-success,
+  .form-error {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    padding: var(--space-4);
+    border: var(--border-width) solid;
+  }
+
+  .form-success {
+    color: var(--color-ink);
+    border-color: var(--color-accent);
+  }
+
+  .form-error {
+    color: var(--color-ink);
+    border-color: var(--color-muted);
+  }
+
+  @media (max-width: 640px) {
+    .body-selector {
       gap: var(--space-4);
+    }
+
+    .artist-pick-card {
+      padding: var(--space-3) var(--space-1);
+    }
+
+    .step--submit {
+      flex-direction: column;
+      align-items: flex-start;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .booking-form__select,
-    .booking-form__textarea,
+    .service-btn,
+    .artist-pick-card,
     .body-map__area,
-    .booking-form__submit {
+    .piercing-point,
+    .form-input,
+    .form-textarea,
+    .submit-btn {
       transition: none;
     }
   }
 </style>
 
 <script>
-  // Body area selection
-  const areas = document.querySelectorAll<SVGElement>('.body-map__area')
-  const bodyAreaInput = document.getElementById('body-area') as HTMLInputElement | null
-  const areaDisplay   = document.getElementById('area-display')
+  // ── State ────────────────────────────────────────────────────────────
+  const activeServices = new Set<string>()
+  let selectedArtistTattoo = ''
+  let selectedArtistPiercing = ''
+  const selectedBodyAreas = new Set<string>()
+  const selectedPiercingAreas = new Set<string>()
 
-  areas.forEach(area => {
-    const activate = () => {
-      areas.forEach(a => {
-        a.classList.remove('selected')
-        a.setAttribute('aria-pressed', 'false')
-      })
-      area.classList.add('selected')
-      area.setAttribute('aria-pressed', 'true')
-      const label = area.getAttribute('data-label') ?? ''
-      if (bodyAreaInput) bodyAreaInput.value = area.getAttribute('data-area') ?? ''
-      if (areaDisplay)   areaDisplay.textContent = label
+  // ── DOM refs ─────────────────────────────────────────────────────────
+  const form            = document.getElementById('booking-form') as HTMLFormElement
+  const stepArtists     = document.getElementById('step-artists')!
+  const stepBody        = document.getElementById('step-body')!
+  const stepPiercing    = document.getElementById('step-piercing')!
+  const stepReference   = document.getElementById('step-reference')!
+  const stepDescription = document.getElementById('step-description')!
+  const stepSize        = document.getElementById('step-size')!
+  const stepContact     = document.getElementById('step-contact')!
+  const stepSubmit      = document.getElementById('step-submit')!
+  const fSize           = document.getElementById('f-size') as HTMLInputElement
+  const fService        = document.getElementById('f-service')    as HTMLInputElement
+  const fArtistTattoo   = document.getElementById('f-artist-tattoo') as HTMLInputElement
+  const fArtistPiercing = document.getElementById('f-artist-piercing') as HTMLInputElement
+  const fBodyAreas      = document.getElementById('f-body-areas')  as HTMLInputElement
+  const fPiercingAreas  = document.getElementById('f-piercing-areas') as HTMLInputElement
+  const bodyAreaDisplay = document.getElementById('body-area-display')
+  const piercingDisplay = document.getElementById('piercing-area-display')
+  const formSuccess     = document.getElementById('form-success')!
+  const formError       = document.getElementById('form-error')!
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  function show(el: HTMLElement) { el.hidden = false }
+  function hide(el: HTMLElement) { el.hidden = true }
+
+  function syncVisibility() {
+    const hasTattoo   = activeServices.has('tattoo')
+    const hasPiercing = activeServices.has('piercing')
+    const hasAny      = hasTattoo || hasPiercing
+
+    // Artist pickers — appear as soon as service is toggled
+    if (hasAny) {
+      show(stepArtists)
+      const tattooPickerEl   = stepArtists.querySelector<HTMLElement>('[data-picker="tattoo"]')!
+      const piercingPickerEl = stepArtists.querySelector<HTMLElement>('[data-picker="piercing"]')!
+      hasTattoo   ? show(tattooPickerEl)   : hide(tattooPickerEl)
+      hasPiercing ? show(piercingPickerEl) : hide(piercingPickerEl)
+    } else {
+      hide(stepArtists)
     }
 
-    area.addEventListener('click', activate)
+    // Body/piercing selectors — only after respective artist is selected
+    ;(hasTattoo && selectedArtistTattoo)   ? show(stepBody)     : hide(stepBody)
+    ;(hasPiercing && selectedArtistPiercing) ? show(stepPiercing) : hide(stepPiercing)
+
+    // Reference / description / submit — appear once any artist is picked
+    const anyArtistPicked = (hasTattoo && selectedArtistTattoo) || (hasPiercing && selectedArtistPiercing)
+    if (anyArtistPicked) {
+      if (hasTattoo) show(stepSize); else hide(stepSize)
+      show(stepReference)
+      show(stepDescription)
+      show(stepContact)
+      show(stepSubmit)
+    } else {
+      hide(stepSize)
+      hide(stepReference)
+      hide(stepDescription)
+      hide(stepContact)
+      hide(stepSubmit)
+    }
+
+    // Dim cards that don't match active services
+    document.querySelectorAll<HTMLElement>('.artist-pick-card').forEach(card => {
+      const cardServices = (card.dataset.services ?? '').split(',')
+      const matches = cardServices.some(s => activeServices.has(s))
+      card.classList.toggle('dimmed', !matches)
+    })
+  }
+
+  function syncHiddenInputs() {
+    fService.value        = Array.from(activeServices).join('+')
+    fArtistTattoo.value   = selectedArtistTattoo
+    fArtistPiercing.value = selectedArtistPiercing
+    fBodyAreas.value      = Array.from(selectedBodyAreas).join(', ')
+    fPiercingAreas.value  = Array.from(selectedPiercingAreas).join(', ')
+    // fSize updated directly by size-btn handler
+  }
+
+  // ── Service toggle handlers ───────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.service-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const svc = btn.dataset.service!
+      if (activeServices.has(svc)) {
+        activeServices.delete(svc)
+        btn.setAttribute('aria-pressed', 'false')
+        // Clear selection for this service
+        if (svc === 'tattoo') {
+          selectedArtistTattoo = ''
+          document.querySelectorAll<HTMLElement>('[data-picker-target="tattoo"]').forEach(c => {
+            c.setAttribute('aria-pressed', 'false')
+          })
+        } else {
+          selectedArtistPiercing = ''
+          document.querySelectorAll<HTMLElement>('[data-picker-target="piercing"]').forEach(c => {
+            c.setAttribute('aria-pressed', 'false')
+          })
+        }
+      } else {
+        activeServices.add(svc)
+        btn.setAttribute('aria-pressed', 'true')
+      }
+      syncVisibility()
+      syncHiddenInputs()
+    })
+  })
+
+  // ── Artist card selection ─────────────────────────────────────────────
+  document.querySelectorAll<HTMLElement>('.artist-pick-card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (card.classList.contains('dimmed')) return
+      const pickerTarget = card.dataset.pickerTarget!
+      const name = card.dataset.artistName!
+
+      // Deselect siblings in same picker
+      document.querySelectorAll<HTMLElement>(`[data-picker-target="${pickerTarget}"]`).forEach(c => {
+        c.setAttribute('aria-pressed', 'false')
+      })
+
+      card.setAttribute('aria-pressed', 'true')
+
+      if (pickerTarget === 'tattoo') {
+        selectedArtistTattoo = name
+      } else {
+        selectedArtistPiercing = name
+      }
+      syncVisibility()
+      syncHiddenInputs()
+    })
+  })
+
+  // ── Body area multi-select ────────────────────────────────────────────
+  document.querySelectorAll<SVGElement>('.body-map__area').forEach(area => {
+    const toggle = () => {
+      const areaId = area.getAttribute('data-area')!
+      const label  = area.getAttribute('data-label')!
+      if (selectedBodyAreas.has(areaId)) {
+        selectedBodyAreas.delete(areaId)
+        area.setAttribute('aria-checked', 'false')
+      } else {
+        selectedBodyAreas.add(areaId)
+        area.setAttribute('aria-checked', 'true')
+      }
+      if (bodyAreaDisplay) {
+        bodyAreaDisplay.textContent = selectedBodyAreas.size === 0
+          ? 'Seleciona uma ou mais áreas no diagrama'
+          : Array.from(document.querySelectorAll<SVGElement>('.body-map__area[aria-checked="true"]'))
+              .map(el => el.getAttribute('data-label') ?? '')
+              .filter(Boolean)
+              .join(', ')
+      }
+      syncHiddenInputs()
+    }
+    area.addEventListener('click', toggle)
     area.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        activate()
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle() }
+    })
+  })
+
+  // ── Piercing point multi-select ───────────────────────────────────────
+  document.querySelectorAll<SVGCircleElement>('.piercing-point').forEach(point => {
+    const toggle = () => {
+      const id    = point.dataset.piercing!
+      const label = point.dataset.label!
+      if (selectedPiercingAreas.has(label)) {
+        selectedPiercingAreas.delete(label)
+        point.setAttribute('aria-checked', 'false')
+      } else {
+        selectedPiercingAreas.add(label)
+        point.setAttribute('aria-checked', 'true')
+      }
+      if (piercingDisplay) {
+        piercingDisplay.textContent = selectedPiercingAreas.size === 0
+          ? 'Seleciona a zona do piercing'
+          : Array.from(selectedPiercingAreas).join(', ')
+      }
+      syncHiddenInputs()
+    }
+    point.addEventListener('click', toggle)
+    point.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle() }
+    })
+  })
+
+  // ── Piercing tab switching ────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.piercing-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const panelId = tab.getAttribute('aria-controls')!
+      document.querySelectorAll('.piercing-tab').forEach(t => {
+        t.setAttribute('aria-selected', 'false')
+        t.classList.remove('piercing-tab--active')
+      })
+      document.querySelectorAll<HTMLElement>('.piercing-panel').forEach(p => { p.hidden = true })
+      tab.setAttribute('aria-selected', 'true')
+      tab.classList.add('piercing-tab--active')
+      document.getElementById(panelId)!.hidden = false
+    })
+  })
+
+  // ── Size selection ───────────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.size-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const alreadySelected = btn.getAttribute('aria-pressed') === 'true'
+      document.querySelectorAll('.size-btn').forEach(b => b.setAttribute('aria-pressed', 'false'))
+      if (!alreadySelected) {
+        btn.setAttribute('aria-pressed', 'true')
+        fSize.value = btn.dataset.size ?? ''
+      } else {
+        fSize.value = ''
       }
     })
   })
 
-  // Form submit — redirect to Booksy
-  const form = document.getElementById('booking-form') as HTMLFormElement | null
-  form?.addEventListener('submit', (e) => {
+  // ── Pre-select artist from URL param ─────────────────────────────────
+  const params = new URLSearchParams(window.location.search)
+  const artistParam = params.get('artista')
+  if (artistParam) {
+    // Activate tattoo service by default when coming from artist card
+    const tattooBtn = document.querySelector<HTMLButtonElement>('[data-service="tattoo"]')
+    if (tattooBtn && !activeServices.has('tattoo')) {
+      tattooBtn.click()
+    }
+    // Select the matching artist card in the tattoo picker
+    const card = document.querySelector<HTMLElement>(`[data-artist-id="${artistParam}"][data-picker-target="tattoo"]`)
+    if (card) setTimeout(() => card.click(), 50)
+  }
+
+  // ── Form submit via Formspree AJAX ────────────────────────────────────
+  form.addEventListener('submit', async (e) => {
     e.preventDefault()
-    const artistSelect = form.elements.namedItem('artist') as HTMLSelectElement
-    const booksyUrl = artistSelect.value
-    if (booksyUrl) window.open(booksyUrl, '_blank', 'noopener,noreferrer')
+    syncHiddenInputs()
+
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement
+    submitBtn.disabled = true
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      })
+      if (response.ok) {
+        form.hidden = true
+        show(formSuccess)
+      } else {
+        show(formError)
+        submitBtn.disabled = false
+      }
+    } catch {
+      show(formError)
+      submitBtn.disabled = false
+    }
   })
 </script>

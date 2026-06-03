@@ -87,9 +87,9 @@ Fluid scale using `clamp()`. Ratio: 1.333 (perfect fourth).
 
 ### Line height
 
-- Display (Cinzel): `line-height: 1.05–1.1`
+- Display (Grenze Gotisch): `line-height: 1.05–1.1`
 - Subheadings: `line-height: 1.2`
-- Body (Barlow Condensed): `line-height: 1.6`
+- Body (IM Fell English): `line-height: 1.6`
 - Light text on dark: add 0.05–0.08 to these values
 - Body max-width: `65ch`
 - `text-wrap: balance` on h1–h3
@@ -97,10 +97,10 @@ Fluid scale using `clamp()`. Ratio: 1.333 (perfect fourth).
 
 ### Letter spacing
 
-- Cinzel display: `-0.02em` to `0em` (never tighter than `-0.04em`)
-- Barlow Condensed headings: `-0.01em`
-- Barlow Condensed body: `0`
-- Short uppercase labels (Barlow, ≤4 words): `0.08em` — used sparingly, not as section grammar
+- Grenze Gotisch display: `-0.02em` to `0em` (never tighter than `-0.04em`)
+- IM Fell English headings: `-0.01em`
+- IM Fell English body: `0`
+- Short uppercase labels (IM Fell English, ≤4 words): `0.08em` — used sparingly, not as section grammar
 
 ## Spacing & Layout
 
@@ -226,22 +226,22 @@ Paths stagger with `--draw-delay` increments (~0.15s apart). Total loader durati
 
 - Fixed top, full-width, `background: var(--color-bg)` with bottom border `var(--color-border)`
 - Logo left, nav links right
-- Mobile: hamburger → slide-in drawer from right (CSS-only with checkbox hack or minimal Astro island)
-- Links: Barlow Condensed 600, `--text-sm`, uppercase `0.08em` tracking — 3 items max
+- Mobile: hamburger → slide-in drawer from right (minimal Astro island — toggles class, sets `aria-expanded`)
+- Links: IM Fell English 400 italic, `--text-sm`, uppercase, `0.08em` tracking — weight comes from tracking + uppercase, not bold — 3 items max
 
 ### Hero
 
 - Full viewport height (`100svh`)
-- Large Cinzel display heading — single bold statement
+- Large Grenze Gotisch display heading — single bold statement
 - Background: full-bleed tattoo photography or pure black with SVG motif overlay
-- Single CTA: "Ver Artistas" or "Marcar Sessão" — Barlow Condensed 700, outlined style (border `var(--color-accent)`, text `var(--color-accent)`)
+- Single CTA: "Ver Artistas" or "Marcar Sessão" — IM Fell English 400, outlined style (border `var(--color-accent)`, text `var(--color-accent)`). Visual weight via uppercase + tracking, not bold.
 
 ### Artist Card
 
 - No nested cards. Full-bleed portrait image top, minimal info below.
-- Name: Cinzel 700, `--text-xl`
-- Specialty tags: Barlow Condensed 400, `--text-xs`, muted
-- Bio: Barlow Condensed 300, `--text-sm`, max `55ch`
+- Name: Grenze Gotisch 700, `--text-xl`
+- Specialty tags: IM Fell English 400, `--text-xs`, muted
+- Bio: IM Fell English 400, `--text-sm`, max `55ch`
 - Booking CTA: text link with accent underline, not a button
 - Portfolio thumbnails: 3-up grid below bio, click to expand (native `<dialog>`)
 
@@ -261,7 +261,7 @@ input, textarea, select {
   color: var(--color-ink);
   border-radius: 2px;   /* sharp, not rounded */
   padding: var(--space-3) var(--space-4);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'IM Fell English', serif;
   font-size: var(--text-base);
 }
 
@@ -280,7 +280,7 @@ input:focus, textarea:focus {
 - Primary: outlined — `border: 1px solid var(--color-accent)`, text `var(--color-accent)`, background transparent
 - Hover: fill with `var(--color-accent)`, text `var(--color-bg)` — invert
 - No rounded corners: `border-radius: 2px` maximum
-- Barlow Condensed 700, `--text-sm`, uppercase `0.08em` tracking
+- IM Fell English 400, `--text-sm`, uppercase, `0.08em` tracking — visual weight from tracking + uppercase
 - Padding: `var(--space-3) var(--space-8)`
 
 ### Decorative Motifs

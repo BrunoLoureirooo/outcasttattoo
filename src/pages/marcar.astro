@@ -6,7 +6,6 @@ import BookingForm from '@/components/forms/BookingForm.astro'
 import { strings } from '@/content/strings.pt.ts'
 
 const { pages } = strings.meta
-const { marcar } = strings
 ---
 
 <Base
@@ -16,39 +15,13 @@ const { marcar } = strings
 >
   <Nav />
   <main id="main-content" class="marcar-page">
-    <div class="container">
-      <header class="marcar-page__header">
-        <h1 class="marcar-page__heading">{marcar.heading}</h1>
-        <p class="marcar-page__intro">{marcar.intro}</p>
-      </header>
-      <BookingForm />
-    </div>
+    <BookingForm />
   </main>
   <Footer />
 </Base>
 
 <style>
   .marcar-page {
-    padding-top: calc(4rem + var(--section-pad));
-    padding-bottom: var(--section-pad);
-  }
-
-  .marcar-page__header {
-    margin-bottom: var(--space-12);
-  }
-
-  .marcar-page__heading {
-    font-family: var(--font-display);
-    font-size: var(--text-4xl);
-    font-weight: 900;
-    color: var(--color-ink);
-    letter-spacing: -0.02em;
-    margin-bottom: var(--space-4);
-  }
-
-  .marcar-page__intro {
-    font-size: var(--text-lg);
-    color: var(--color-muted);
-    max-width: 52ch;
+    padding-top: 4rem; /* nav height offset — section handles its own padding */
   }
 </style>

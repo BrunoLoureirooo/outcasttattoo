@@ -1,8 +1,4 @@
 ---
-/**
- * Nav.astro — site-wide navigation
- * Fixed top, logo left, links right, mobile drawer.
- */
 import { strings } from '@/content/strings.pt.ts'
 
 const { nav } = strings
@@ -18,7 +14,6 @@ const links = [
 <header class="nav" role="banner">
   <div class="nav__inner container">
     <a href="/" class="nav__logo" aria-label={strings.meta.siteName}>
-      <!-- Logo SVG injected here when provided by client -->
       <span class="nav__logo-text">{strings.meta.siteName}</span>
     </a>
 
@@ -38,21 +33,30 @@ const links = [
       </ul>
     </nav>
 
-    <!-- Mobile toggle — CSS-only via checkbox -->
-    <label class="nav__burger" for="nav-toggle" aria-label={nav.menuOpen}>
-      <span></span>
-      <span></span>
-      <span></span>
-    </label>
-    <input type="checkbox" id="nav-toggle" class="nav__toggle" aria-hidden="true" />
+    <!-- Mobile toggle — Astro island -->
+    <button
+      class="nav__burger"
+      id="nav-burger"
+      aria-label={nav.menuOpen}
+      aria-expanded="false"
+      aria-controls="nav-drawer"
+    >
+      <span class="nav__burger-bar"></span>
+      <span class="nav__burger-bar"></span>
+      <span class="nav__burger-bar"></span>
+    </button>
 
     <!-- Mobile drawer -->
-    <div class="nav__drawer" aria-hidden="true">
+    <div class="nav__drawer" id="nav-drawer" aria-hidden="true">
       <nav aria-label={nav.ariaLabel}>
         <ul class="nav__drawer-links" role="list">
           {links.map(({ href, label }) => (
             <li>
-              <a href={href} class="nav__drawer-link">
+              <a
+                href={href}
+                class:list={['nav__drawer-link', { 'nav__drawer-link--active': currentPath === href }]}
+                aria-current={currentPath === href ? 'page' : undefined}
+              >
                 {label}
               </a>
             </li>
@@ -84,7 +88,6 @@ const links = [
   .nav__logo {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
   }
 
   .nav__logo-text {
@@ -105,37 +108,38 @@ const links = [
 
   .nav__link {
     font-family: var(--font-body);
-    font-size: var(--text-sm);
     font-weight: 400;
+    font-style: normal;
+    font-size: var(--text-sm);
     color: var(--color-muted);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    transition: color var(--duration-fast) ease;
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
+    transition: color var(--duration-fast) ease, border-color var(--duration-fast) ease;
   }
 
-  .nav__link:hover,
-  .nav__link--active {
+  .nav__link:hover {
     color: var(--color-ink);
   }
 
   .nav__link--active {
-    color: var(--color-accent);
+    color: var(--color-ink);
+    border-bottom-color: var(--color-accent);
   }
 
-  /* Mobile toggle */
-  .nav__toggle {
-    display: none;
-  }
-
+  /* Mobile burger */
   .nav__burger {
     display: none;
     flex-direction: column;
     gap: 5px;
     cursor: pointer;
     padding: var(--space-2);
+    background: none;
+    border: none;
   }
 
-  .nav__burger span {
+  .nav__burger-bar {
     display: block;
     width: 24px;
     height: 1px;
@@ -144,12 +148,22 @@ const links = [
                 opacity var(--duration-fast) ease;
   }
 
+  /* Burger → X when open */
+  .nav__burger[aria-expanded="true"] .nav__burger-bar:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .nav__burger[aria-expanded="true"] .nav__burger-bar:nth-child(2) {
+    opacity: 0;
+  }
+  .nav__burger[aria-expanded="true"] .nav__burger-bar:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
   /* Mobile drawer */
   .nav__drawer {
     display: none;
   }
 
-  /* Mobile breakpoint */
   @media (max-width: 640px) {
     .nav__links {
       display: none;
@@ -171,19 +185,8 @@ const links = [
       padding: var(--space-8) var(--container-pad);
     }
 
-    .nav__toggle:checked ~ .nav__drawer {
+    .nav__drawer.is-open {
       transform: translateX(0);
-    }
-
-    /* Burger → X when open */
-    .nav__toggle:checked ~ .nav__inner .nav__burger span:nth-child(1) {
-      transform: translateY(6px) rotate(45deg);
-    }
-    .nav__toggle:checked ~ .nav__inner .nav__burger span:nth-child(2) {
-      opacity: 0;
-    }
-    .nav__toggle:checked ~ .nav__inner .nav__burger span:nth-child(3) {
-      transform: translateY(-6px) rotate(-45deg);
     }
 
     .nav__drawer-links {
@@ -201,15 +204,52 @@ const links = [
       transition: color var(--duration-fast) ease;
     }
 
-    .nav__drawer-link:hover {
+    .nav__drawer-link--active {
+      color: var(--color-accent);
+    }
+
+    .nav__drawer-link:hover:not(.nav__drawer-link--active) {
       color: var(--color-accent);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .nav__drawer,
-    .nav__burger span {
+    .nav__burger-bar,
+    .nav__link {
       transition: none;
     }
   }
 </style>
+
+<script>
+  const burger = document.getElementById('nav-burger')!
+  const drawer = document.getElementById('nav-drawer')!
+
+  burger.addEventListener('click', () => {
+    const isOpen = burger.getAttribute('aria-expanded') === 'true'
+    burger.setAttribute('aria-expanded', String(!isOpen))
+    burger.setAttribute('aria-label', isOpen ? burger.getAttribute('aria-label')! : '')
+    drawer.classList.toggle('is-open', !isOpen)
+    drawer.setAttribute('aria-hidden', String(isOpen))
+  })
+
+  // Close on nav link click
+  drawer.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      burger.setAttribute('aria-expanded', 'false')
+      drawer.classList.remove('is-open')
+      drawer.setAttribute('aria-hidden', 'true')
+    })
+  })
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && burger.getAttribute('aria-expanded') === 'true') {
+      burger.setAttribute('aria-expanded', 'false')
+      drawer.classList.remove('is-open')
+      drawer.setAttribute('aria-hidden', 'true')
+      burger.focus()
+    }
+  })
+</script>

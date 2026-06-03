@@ -4,6 +4,7 @@
     "name": "Johnny",
     "bio": "Especialista em blackwork e dotwork com influências de arte urbana e ilustração.",
     "specialties": ["Blackwork", "Dotwork", "Ilustração"],
+    "services": ["tattoo", "piercing"],
     "booksy_url": "https://booksy.com",
     "portrait": "/images/artists/johnny.webp",
     "portfolio": [
@@ -17,6 +18,7 @@
     "name": "Daniela",
     "bio": "Arte fineline e botânica com um toque delicado e preciso.",
     "specialties": ["Fineline", "Botânica", "Geométrico"],
+    "services": ["tattoo", "piercing"],
     "booksy_url": "https://booksy.com",
     "portrait": "/images/artists/daniela.webp",
     "portfolio": [
@@ -30,6 +32,7 @@
     "name": "Diogo",
     "bio": "Ilustração detalhada com raízes em arte japonesa e neo-tradicional.",
     "specialties": ["Neo-tradicional", "Japonês", "Ilustração"],
+    "services": ["tattoo", "piercing"],
     "booksy_url": "https://booksy.com",
     "portrait": "/images/artists/diogo.webp",
     "portfolio": [
@@ -43,6 +46,7 @@
     "name": "Andreia",
     "bio": "Trabalhos realistas e retratos em preto e cinza com grande detalhe.",
     "specialties": ["Realismo", "Retratos", "Preto e Cinza"],
+    "services": ["tattoo", "piercing"],
     "booksy_url": "https://booksy.com",
     "portrait": "/images/artists/andreia.webp",
     "portfolio": [
@@ -56,6 +60,7 @@
     "name": "Dai",
     "bio": "Anime, manga e personagens com um estilo expressivo e cheio de energia.",
     "specialties": ["Anime", "Manga", "Personagens"],
+    "services": ["tattoo", "piercing"],
     "booksy_url": "https://booksy.com",
     "portrait": "/images/artists/dai.webp",
     "portfolio": [

@@ -113,22 +113,28 @@ Artists are **data-driven** — defined in `src/data/artists.json`, never hardco
   "name": "string",
   "bio": "string",
   "specialties": ["string"],
+  "services": ["tattoo", "piercing"],
   "booksy_url": "string",
+  "portrait": "string",
   "portfolio": ["string"]
 }
 ```
+
+`services` drives artist card filtering on the booking form. Valid values: `"tattoo"`, `"piercing"`. An artist can have both.
 
 ---
 
 ## Booking
 
-- **Platform**: Booksy
-- Each artist has their own Booksy booking link (`booksy_url` in artist data)
-- Booking page includes:
-  - Visual body area selector (inline SVG, clickable, zero JS library)
-  - Description textarea
-  - File upload: **PINNED** — check if Booksy supports attachments first; fallback is Cloudflare R2 + Worker
-- On submit: redirect to artist-specific Booksy page
+- **Submission**: email via Formspree (zero backend, static-compatible)
+- Booking page flow:
+  1. **Artist selector** — cards, not dropdown. Selecting a card: accent border lights up, card expands to full width; unselected cards shrink. Zero JS library — Astro island with minimal state.
+  2. **Body area selector** — inline SVG silhouette, clickable areas
+  3. **Reference link** — text field ("link de referência") — user pastes Instagram/Pinterest URL. No file upload in v1.
+  4. **Description** — textarea
+  5. **Submit** → Formspree → shop email inbox
+- File upload: v2 upgrade path via Cloudflare R2 + Worker (documented, not built)
+- Booksy links remain on artist cards on `/sobre` for direct booking
 
 ---
 
