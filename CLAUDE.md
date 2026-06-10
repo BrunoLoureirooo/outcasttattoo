@@ -26,7 +26,7 @@ Website for a tattoo shop based in Portugal. Goals: visually captivating, maximu
 
 | Page | Route | Description |
 |---|---|---|
-| Landing | `/` | Hero, captivating entry point |
+| Landing | `/` | Hero, captivating entry point + upcoming events list |
 | About / Artists | `/sobre` | Shop info, location, artist cards |
 | Booking | `/marcar` | Body area selector + Booksy integration |
 
@@ -83,6 +83,7 @@ src/
     strings.pt.ts    # All client-facing text in Portuguese
   data/
     artists.json     # Artist data — single source of truth
+    events.json      # Upcoming events shown on landing — past events filtered at build
   layouts/
     Base.astro       # HTML shell, meta, fonts, global CSS
   pages/
@@ -140,7 +141,7 @@ Artists are **data-driven** — defined in `src/data/artists.json`, never hardco
 
 ## Images
 
-- Portfolio images stored in repo under `public/images/artists/`
+- Portrait + portfolio images stored in repo under `src/assets/artists/` (so Astro `<Image />` can optimize them — `public/` bypasses the pipeline). Matched by filename against the paths in `artists.json`; missing files degrade gracefully (silhouette fallback / thumb omitted)
 - Format: **WebP**, optimized before commit
 - Use Astro `<Image />` component for automatic optimization + srcset
 - Upgrade path: Cloudflare Images if repo assets become unwieldy

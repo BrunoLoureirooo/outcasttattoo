@@ -53,6 +53,30 @@ export const strings = {
     subheading: 'Estúdio de tatuagem personalizada em Leiria.',
     cta:       'Ver Artistas',
     ctaHref:   '/sobre',
+    imageAlt:  'Tatuagem blackwork no antebraço — texugo-do-mel e serpente, trabalho Outcast',
+  },
+
+  // -------------------------------------------------------------------------
+  // Events (landing page)
+  // -------------------------------------------------------------------------
+  events: {
+    heading: 'Próximos Eventos',
+    intro:   'Onde nos podes encontrar fora do estúdio.',
+    cta:     'Saber mais',
+  },
+
+  // -------------------------------------------------------------------------
+  // Loader
+  // -------------------------------------------------------------------------
+  loader: {
+    ariaLabel: 'A carregar Outcast Tattoo',
+  },
+
+  // -------------------------------------------------------------------------
+  // Shared UI
+  // -------------------------------------------------------------------------
+  common: {
+    optional: 'opcional',
   },
 
   // -------------------------------------------------------------------------
@@ -62,10 +86,14 @@ export const strings = {
     heading:     'Os Artistas',
     intro:       'Cinco artistas. Uma linguagem. Arte feita para durar.',
     bookCta:     'Marcar com {name}',
+    booksyCta:   'Booksy ↗',
     specialties: 'Especialidades',
     viewWork:    'Ver trabalho',
+    portfolioAlt: 'Trabalho de {name}',
+    portraitAlt:  'Retrato de {name}',
     location: {
       heading: 'Onde nos encontrar',
+      directions: 'Ver no Google Maps ↗',
       address: 'Rua da Escola, Urbanização Planalto 6\n2415-449 Leiria, Portugal',
       hours: {
         label:    'Horário',
@@ -97,12 +125,18 @@ export const strings = {
     bodyArea: {
       label:       'Área do corpo',
       placeholder: 'Seleciona uma ou mais áreas no diagrama',
+      front:       'Frente',
+      back:        'Costas',
     },
     piercingArea: {
       label:       'Zona do piercing',
       ear:         'Orelha',
       body:        'Corpo',
       placeholder: 'Seleciona a zona do piercing',
+      earLeft:     'Orelha esquerda',
+      earRight:    'Orelha direita',
+      left:        'Esquerda',
+      right:       'Direita',
     },
     referenceLink: {
       label:       'Link de referência',
@@ -130,6 +164,7 @@ export const strings = {
     disclaimer: 'A equipa Outcast entrará em contacto para confirmar data e hora.',
     success:    'Pedido enviado. Falamos em breve.',
     error:      'Algo correu mal. Tenta novamente.',
+    validation: 'Preenche os campos obrigatórios antes de enviar.',
   },
 
   // -------------------------------------------------------------------------

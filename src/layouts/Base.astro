@@ -49,7 +49,23 @@ const jsonLd = {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#141414" />
+    <meta name="theme-color" content="#020202" />
+
+    <!-- Fonts — preconnect + single stylesheet, no CSS @import chain -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@600;800;900&family=IM+Fell+English:ital@0;1&display=swap"
+    />
+
+    <!-- First-visit flag — lets CSS choreograph the hero entrance with the loader.
+         Must run before paint; reads the flag before Loader sets it. -->
+    <script is:inline>
+      if (!sessionStorage.getItem('loader-played')) {
+        document.documentElement.classList.add('first-visit')
+      }
+    </script>
 
     <!-- Primary meta -->
     <title>{title}</title>
@@ -58,6 +74,7 @@ const jsonLd = {
 
     <!-- OpenGraph -->
     <meta property="og:type"        content="website" />
+    <meta property="og:locale"      content="pt_PT" />
     <meta property="og:site_name"   content={strings.meta.siteName} />
     <meta property="og:title"       content={title} />
     <meta property="og:description" content={description} />

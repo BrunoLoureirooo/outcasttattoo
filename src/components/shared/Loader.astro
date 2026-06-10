@@ -16,9 +16,10 @@
  *
  * Reduced motion: instant reveal, fast dismiss.
  */
+import { strings } from '@/content/strings.pt.ts'
 ---
 
-<div id="loader" role="status" aria-label="A carregar Outcast Tattoo">
+<div id="loader" role="status" aria-label={strings.loader.ariaLabel}>
   <div class="loader-logo">
     <!-- Center character: visible immediately, no animation -->
     <img

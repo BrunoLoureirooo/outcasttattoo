@@ -1,0 +1,195 @@
+---
+/**
+ * EventsList.astro — upcoming events the studio attends
+ * Used on: / (index, below Hero)
+ * Data-driven from events.json — renders nothing when no upcoming events.
+ * Past events are filtered at build time (site rebuilds on deploy).
+ */
+import ChainDivider from '@/components/shared/ChainDivider.astro'
+import { strings } from '@/content/strings.pt.ts'
+import allEvents from '@/data/events.json'
+
+const { events } = strings
+
+const today = new Date()
+today.setHours(0, 0, 0, 0)
+
+const upcoming = allEvents
+  .filter(ev => new Date(ev.endDate ?? ev.date) >= today)
+  .sort((a, b) => a.date.localeCompare(b.date))
+
+const dayFmt   = new Intl.DateTimeFormat('pt-PT', { day: '2-digit' })
+const monthFmt = new Intl.DateTimeFormat('pt-PT', { month: 'short' })
+
+function formatDay(ev: (typeof allEvents)[number]): string {
+  const start = dayFmt.format(new Date(ev.date))
+  if (!ev.endDate) return start
+  return `${start}–${dayFmt.format(new Date(ev.endDate))}`
+}
+
+function formatMonth(ev: (typeof allEvents)[number]): string {
+  return monthFmt.format(new Date(ev.date)).replace('.', '')
+}
+---
+
+{upcoming.length > 0 && (
+  <section class="events" aria-labelledby="events-heading">
+    <div class="container">
+      <header class="events__header reveal" data-pending>
+        <h2 id="events-heading" class="events__heading">{events.heading}</h2>
+        <p class="events__intro">{events.intro}</p>
+        <ChainDivider />
+      </header>
+
+      <ol class="events__list" role="list">
+        {upcoming.map(ev => {
+          const inner = (
+            <>
+              <span class="events__date" aria-hidden="true">
+                <span class="events__day">{formatDay(ev)}</span>
+                <span class="events__month">{formatMonth(ev)}</span>
+              </span>
+              <span class="events__detail">
+                <span class="events__name">{ev.name}</span>
+                <span class="events__where">{ev.location} — {ev.city}</span>
+              </span>
+              {ev.url && <span class="events__cta">{events.cta}</span>}
+            </>
+          )
+          return (
+            <li class="events__row reveal" data-pending>
+              {ev.url
+                ? <a href={ev.url} class="events__link" target="_blank" rel="noopener noreferrer">{inner}</a>
+                : <div class="events__link">{inner}</div>}
+            </li>
+          )
+        })}
+      </ol>
+    </div>
+  </section>
+)}
+
+<style>
+  .events {
+    padding-block: var(--section-pad);
+  }
+
+  .events__header {
+    margin-bottom: var(--space-12);
+  }
+
+  .events__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-3);
+  }
+
+  .events__intro {
+    font-size: var(--text-base);
+    color: var(--color-muted);
+    max-width: 50ch;
+    margin-bottom: var(--space-8);
+  }
+
+  .events__list {
+    list-style: none;
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .events__row {
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .events__link {
+    display: grid;
+    grid-template-columns: minmax(7rem, auto) 1fr auto;
+    align-items: baseline;
+    gap: var(--space-6);
+    padding-block: var(--space-6);
+    transition: border-color var(--duration-fast) ease;
+  }
+
+  .events__date {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+
+  .events__day {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    color: var(--color-ink);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+
+  .events__month {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .events__detail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .events__name {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .events__where {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .events__cta {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-accent-dim);
+    transition: text-decoration-color var(--duration-fast) ease;
+    white-space: nowrap;
+  }
+
+  a.events__link:hover .events__name {
+    color: var(--color-accent);
+  }
+
+  a.events__link:hover .events__cta {
+    text-decoration-color: var(--color-accent);
+  }
+
+  @media (max-width: 640px) {
+    .events__link {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .events__link,
+    .events__name,
+    .events__cta {
+      transition: none;
+    }
+  }
+</style>

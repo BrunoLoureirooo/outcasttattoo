@@ -24,8 +24,8 @@ Physical scene: ink pressed into skin under a single industrial lamp. Crown of t
   /* Primary text — near-white, pure */
   --color-ink:      oklch(0.96 0.000 0);
 
-  /* Secondary text, metadata, captions */
-  --color-muted:    oklch(0.52 0.000 0);
+  /* Secondary text, metadata, captions — L 0.58 keeps ≥4.5:1 on surface */
+  --color-muted:    oklch(0.58 0.000 0);
 
   /* Accent — warm ivory / aged bone. The single non-neutral. */
   /* Used for: logo highlights, decorative motifs, hover states, active states, key emphasis */
@@ -43,6 +43,7 @@ Physical scene: ink pressed into skin under a single industrial lamp. Crown of t
 | `--color-ink` on `--color-bg` | ~18:1 | AAA |
 | `--color-accent` on `--color-bg` | ~13:1 | AAA |
 | `--color-muted` on `--color-bg` | ~4.8:1 | AA |
+| `--color-muted` on `--color-surface` | ~4.6:1 | AA |
 | `--color-ink` on `--color-surface` | ~14:1 | AAA |
 
 ## Typography
@@ -216,7 +217,7 @@ Paths stagger with `--draw-delay` increments (~0.15s apart). Total loader durati
 ### Interaction micro-motion
 
 - Links/buttons: `transition: color 0.2s ease, opacity 0.2s ease` — no layout shifts
-- Artist cards: subtle `scale(1.02)` on hover, `0.25s ease-out` — not a jump
+- Artist cards: portrait zooms `scale(1.03)` inside `overflow: hidden` on hover (`0.4s` expo-out) + border → accent-dim — card itself never scales (text shimmer)
 - Navigation: fade opacity on hover, not background fill flash
 - Body area SVG selector: path fill transition `0.2s ease` on select/deselect
 
@@ -250,7 +251,7 @@ Paths stagger with `--draw-delay` increments (~0.15s apart). Total loader durati
 - Inline SVG — front and back human silhouette
 - Selected area: fill transitions to `var(--color-accent)` at `opacity: 0.35`
 - Unselected: fill `var(--color-surface)`
-- Label: Barlow Condensed 600, `--text-sm`, appears on selection
+- Label: IM Fell English 400, `--text-sm`, appears on selection
 
 ### Form Elements
 

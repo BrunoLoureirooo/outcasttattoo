@@ -2,6 +2,7 @@
 /**
  * Footer.astro — site-wide footer
  */
+import ChainDivider from '@/components/shared/ChainDivider.astro'
 import { strings } from '@/content/strings.pt.ts'
 
 const { footer, jsonLd } = strings
@@ -9,6 +10,9 @@ const year = new Date().getFullYear()
 ---
 
 <footer class="footer" role="contentinfo">
+  <div class="footer__divider container">
+    <ChainDivider />
+  </div>
   <div class="footer__inner container">
     <div class="footer__brand">
       <p class="footer__name">{strings.meta.siteName}</p>
@@ -48,10 +52,13 @@ const year = new Date().getFullYear()
 
 <style>
   .footer {
-    border-top: var(--border-width) solid var(--color-border);
-    padding-top: var(--space-12);
     padding-bottom: var(--space-8);
     margin-top: var(--section-pad);
+  }
+
+  /* Chain motif replaces the plain border — quiet, structural */
+  .footer__divider {
+    margin-bottom: var(--space-12);
   }
 
   .footer__inner {

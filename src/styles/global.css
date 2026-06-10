@@ -4,7 +4,8 @@
    All values reference tokens.css — never hardcoded.
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@600;800;900&family=IM+Fell+English:ital@0;1&display=swap');
+/* Fonts are loaded via <link> in Base.astro (preconnect + non-blocking) —
+   never via @import here (render-blocking chain). */
 @import './tokens.css';
 
 /* -------------------------------------------------------------------------

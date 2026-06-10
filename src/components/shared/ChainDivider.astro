@@ -1,0 +1,28 @@
+---
+/**
+ * ChainDivider.astro — horizontal chain-link separator motif
+ * Used on: / (events header), all pages (footer)
+ * Side-view chain: oval link, edge-on link, repeat. Inherits currentColor —
+ * parent sets `color` (DESIGN.md: motifs at border/accent, never loud).
+ */
+const patternId = `chain-${Math.random().toString(36).slice(2, 8)}`
+---
+
+<svg class="chain-divider" height="12" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id={patternId} width="30" height="12" patternUnits="userSpaceOnUse">
+      <ellipse cx="10" cy="6" rx="9" ry="4.5" fill="none" stroke="currentColor" stroke-width="1" />
+      <line x1="19.5" y1="6" x2="28.5" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </pattern>
+  </defs>
+  <rect width="100%" height="12" fill={`url(#${patternId})`} />
+</svg>
+
+<style>
+  .chain-divider {
+    display: block;
+    width: 100%;
+    height: 12px;
+    color: var(--color-border);
+  }
+</style>

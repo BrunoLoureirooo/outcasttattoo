@@ -1,4 +1,14 @@
 ---
+/**
+ * ArtistCard.astro — artist portrait, bio, portfolio + booking links
+ * Used on: /sobre (via ArtistGrid)
+ *
+ * Images live in src/assets/artists/ and are matched by filename against
+ * the paths in artists.json. Missing files degrade gracefully: portrait
+ * falls back to a generic silhouette, portfolio thumbs are simply omitted.
+ */
+import { Image } from 'astro:assets'
+import type { ImageMetadata } from 'astro'
 import { strings } from '@/content/strings.pt.ts'
 
 interface Props {
@@ -12,14 +22,51 @@ interface Props {
   portfolio:   string[]
 }
 
-const { id, name, bio, specialties } = Astro.props
-const { artistCard, sobre } = strings
-const initial = name.charAt(0)
+const { id, name, bio, specialties, booksy_url, portrait, portfolio } = Astro.props
+const { sobre, lightbox } = strings
+
+const images = import.meta.glob('/src/assets/artists/*.{webp,jpg,jpeg,png,avif}', {
+  eager: true,
+}) as Record<string, { default: ImageMetadata }>
+
+function resolveImage(path?: string): ImageMetadata | undefined {
+  if (!path) return undefined
+  const basename = path.split('/').pop()
+  return images[`/src/assets/artists/${basename}`]?.default
+}
+
+const portraitImg    = resolveImage(portrait)
+const portfolioImgs  = portfolio.map(resolveImage).filter((m): m is ImageMetadata => Boolean(m))
+const lightboxLabel  = lightbox.ariaLabel.replace('{name}', name)
+const portraitAlt    = sobre.portraitAlt.replace('{name}', name)
+const portfolioAlt   = sobre.portfolioAlt.replace('{name}', name)
 ---
 
 <article class="artist-card reveal" data-pending>
-  <div class="artist-card__image-wrap" aria-hidden="true">
-    <span class="artist-card__initial">{initial}</span>
+  <div class="artist-card__image-wrap">
+    {portraitImg ? (
+      <Image
+        src={portraitImg}
+        alt={portraitAlt}
+        class="artist-card__portrait"
+        widths={[320, 480, 640, 960]}
+        sizes="(max-width: 640px) 100vw, 380px"
+      />
+    ) : (
+      <svg
+        class="artist-card__fallback"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="0.75"
+        aria-hidden="true"
+        focusable="false"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle cx="12" cy="8.4" r="3.6" />
+        <path d="M 4.5,21.5 c 0,-4.6 3.4,-7.2 7.5,-7.2 s 7.5,2.6 7.5,7.2" />
+      </svg>
+    )}
   </div>
 
   <div class="artist-card__body">
@@ -33,10 +80,68 @@ const initial = name.charAt(0)
 
     <p class="artist-card__bio">{bio}</p>
 
-    <a href={`/marcar?artista=${id}`} class="artist-card__book">
-      {sobre.bookCta.replace('{name}', name)}
-    </a>
+    {portfolioImgs.length > 0 && (
+      <div class="artist-card__portfolio" role="group" aria-label={lightboxLabel}>
+        {portfolioImgs.map((img, i) => (
+          <button
+            type="button"
+            class="artist-card__thumb"
+            data-lightbox-open={i}
+            aria-label={`${portfolioAlt} ${i + 1}`}
+          >
+            <Image src={img} alt="" width={320} class="artist-card__thumb-img" />
+          </button>
+        ))}
+      </div>
+    )}
+
+    <div class="artist-card__actions">
+      <a href={`/marcar?artista=${id}`} class="artist-card__book">
+        {sobre.bookCta.replace('{name}', name)}
+      </a>
+      <a
+        href={booksy_url}
+        class="artist-card__booksy"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {sobre.booksyCta}
+      </a>
+    </div>
   </div>
+
+  {portfolioImgs.length > 0 && (
+    <dialog class="artist-card__lightbox" aria-label={lightboxLabel}>
+      <div class="artist-card__lightbox-frame">
+        {portfolioImgs.map((img, i) => (
+          <figure class="artist-card__slide" hidden={i !== 0}>
+            <Image
+              src={img}
+              alt={`${portfolioAlt} ${i + 1}`}
+              widths={[640, 960, 1280]}
+              sizes="90vw"
+              class="artist-card__slide-img"
+            />
+          </figure>
+        ))}
+      </div>
+      <div class="artist-card__lightbox-controls">
+        {portfolioImgs.length > 1 && (
+          <button type="button" class="artist-card__lightbox-btn" data-prev>
+            ← {lightbox.previous}
+          </button>
+        )}
+        <button type="button" class="artist-card__lightbox-btn" data-close>
+          {lightbox.close}
+        </button>
+        {portfolioImgs.length > 1 && (
+          <button type="button" class="artist-card__lightbox-btn" data-next>
+            {lightbox.next} →
+          </button>
+        )}
+      </div>
+    </dialog>
+  )}
 </article>
 
 <style>
@@ -49,25 +154,34 @@ const initial = name.charAt(0)
   }
 
   .artist-card:hover {
-    border-color: var(--color-muted);
+    border-color: var(--color-accent-dim);
   }
 
   .artist-card__image-wrap {
     aspect-ratio: 4 / 5;
-    background: var(--color-border);
+    background: var(--color-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
   }
 
-  .artist-card__initial {
-    font-family: var(--font-display);
-    font-size: var(--text-5xl);
-    font-weight: 900;
-    color: var(--color-muted);
-    line-height: 1;
-    user-select: none;
+  .artist-card__portrait {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* shift toward monochrome per DESIGN.md imagery treatment */
+    filter: grayscale(35%) contrast(1.05);
+    transition: transform 0.4s var(--ease-out-expo);
+  }
+
+  .artist-card:hover .artist-card__portrait {
+    transform: scale(1.03);
+  }
+
+  .artist-card__fallback {
+    width: 38%;
+    color: var(--color-border);
   }
 
   .artist-card__body {
@@ -109,29 +223,192 @@ const initial = name.charAt(0)
     max-width: 55ch;
   }
 
-  .artist-card__book {
+  /* ── Portfolio thumbnails — 3-up, click to expand ── */
+
+  .artist-card__portfolio {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+  }
+
+  .artist-card__thumb {
+    padding: 0;
+    border: var(--border-width) solid var(--color-border);
+    background: var(--color-bg);
+    cursor: pointer;
+    aspect-ratio: 1;
+    overflow: hidden;
+    transition: border-color var(--duration-fast) ease;
+  }
+
+  .artist-card__thumb:hover,
+  .artist-card__thumb:focus-visible {
+    border-color: var(--color-accent);
+  }
+
+  .artist-card__thumb:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .artist-card__thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(35%);
+    transition: transform 0.4s var(--ease-out-expo);
+  }
+
+  .artist-card__thumb:hover .artist-card__thumb-img {
+    transform: scale(1.05);
+  }
+
+  /* ── Actions ── */
+
+  .artist-card__actions {
     margin-top: auto;
     padding-top: var(--space-4);
     border-top: var(--border-width) solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .artist-card__book,
+  .artist-card__booksy {
     font-family: var(--font-body);
     font-size: var(--text-sm);
-    color: var(--color-accent);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     text-decoration: underline;
     text-underline-offset: 3px;
-    text-decoration-color: var(--color-accent-dim);
     transition: text-decoration-color var(--duration-fast) ease;
+  }
+
+  .artist-card__book {
+    color: var(--color-accent);
+    text-decoration-color: var(--color-accent-dim);
   }
 
   .artist-card__book:hover {
     text-decoration-color: var(--color-accent);
   }
 
+  .artist-card__booksy {
+    color: var(--color-muted);
+    text-decoration-color: var(--color-border);
+  }
+
+  .artist-card__booksy:hover {
+    color: var(--color-accent);
+    text-decoration-color: var(--color-accent);
+  }
+
+  /* ── Lightbox — native <dialog> ── */
+
+  .artist-card__lightbox {
+    background: var(--color-bg);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
+    max-width: min(90vw, 920px);
+    max-height: 90svh;
+  }
+
+  .artist-card__lightbox::backdrop {
+    background: oklch(0.05 0 0 / 0.88);
+  }
+
+  .artist-card__slide {
+    margin: 0;
+  }
+
+  .artist-card__slide-img {
+    display: block;
+    max-width: 100%;
+    max-height: 72svh;
+    width: auto;
+    height: auto;
+    margin-inline: auto;
+  }
+
+  .artist-card__lightbox-controls {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-6);
+    padding-top: var(--space-4);
+  }
+
+  .artist-card__lightbox-btn {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: var(--space-2) var(--space-3);
+    transition: color var(--duration-fast) ease;
+  }
+
+  .artist-card__lightbox-btn:hover,
+  .artist-card__lightbox-btn:focus-visible {
+    color: var(--color-accent);
+  }
+
+  .artist-card__lightbox-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .artist-card,
-    .artist-card__book {
+    .artist-card__portrait,
+    .artist-card__thumb,
+    .artist-card__thumb-img,
+    .artist-card__book,
+    .artist-card__booksy,
+    .artist-card__lightbox-btn {
       transition: none;
     }
   }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.artist-card').forEach(card => {
+    const dialog = card.querySelector<HTMLDialogElement>('.artist-card__lightbox')
+    if (!dialog) return
+
+    const slides = Array.from(dialog.querySelectorAll<HTMLElement>('.artist-card__slide'))
+    let index = 0
+
+    function setIndex(i: number) {
+      index = (i + slides.length) % slides.length
+      slides.forEach((slide, j) => { slide.hidden = j !== index })
+    }
+
+    card.querySelectorAll<HTMLButtonElement>('[data-lightbox-open]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setIndex(Number(btn.dataset.lightboxOpen ?? 0))
+        dialog.showModal()
+      })
+    })
+
+    dialog.querySelector('[data-prev]')?.addEventListener('click', () => setIndex(index - 1))
+    dialog.querySelector('[data-next]')?.addEventListener('click', () => setIndex(index + 1))
+    dialog.querySelector('[data-close]')?.addEventListener('click', () => dialog.close())
+
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft')  setIndex(index - 1)
+      if (e.key === 'ArrowRight') setIndex(index + 1)
+    })
+
+    // Close on backdrop click — the dialog element itself is only hit outside content
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close()
+    })
+  })
+</script>

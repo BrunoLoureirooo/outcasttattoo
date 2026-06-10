@@ -23,8 +23,8 @@
   /* Primary text — near-white, pure */
   --color-ink:         oklch(0.96 0.000 0);
 
-  /* Secondary text, metadata, captions */
-  --color-muted:       oklch(0.52 0.000 0);
+  /* Secondary text, metadata, captions — L 0.58 keeps ≥4.5:1 on surface */
+  --color-muted:       oklch(0.58 0.000 0);
 
   /* Accent — warm ivory / aged bone. The single non-neutral.
      Use for: logo highlights, motifs, hover states, active states, key emphasis */
@@ -61,6 +61,7 @@
   --space-2:  0.50rem;
   --space-3:  0.75rem;
   --space-4:  1rem;
+  --space-5:  1.25rem;
   --space-6:  1.5rem;
   --space-8:  2rem;
   --space-12: 3rem;
@@ -74,6 +75,9 @@
   /* Content container */
   --container-max: 1200px;
   --container-pad: clamp(1.25rem, 5vw, 3rem);
+
+  /* Fixed nav height — referenced by page offsets */
+  --nav-height: 4rem;
 
   /* -------------------------------------------------------------------------
      Borders & Radius

@@ -2,39 +2,62 @@
 /**
  * Hero.astro — full-viewport landing hero
  * Used on: / (index)
+ *
+ * Entry choreography: on first visit (html.first-visit, set in Base.astro
+ * before paint) heading lines, sub and CTA rise in sequence timed to land
+ * as the Loader overlay fades (loader exits 1.6s–2.1s). On return visits
+ * there is no loader and no animation — content is static and visible.
  */
+import { Image } from 'astro:assets'
 import { strings } from '@/content/strings.pt.ts'
+import heroImage from '@/assets/hero/hero-blackwork.jpg'
 
 const { hero } = strings
 
 // heading may contain \n for line breaks
 const headingLines = hero.heading.split('\n')
+const lastLine = headingLines.length - 1
 ---
 
-<section class="hero" aria-label="Hero">
+<section class="hero">
   <div class="hero__inner container">
-    <div class="hero__content">
-      <h1 class="hero__heading">
-        {headingLines.map((line, i) => (
-          <>
-            {line}
-            {i < headingLines.length - 1 && <br />}
-          </>
-        ))}
-      </h1>
-      <p class="hero__sub">{hero.subheading}</p>
-      <a href={hero.ctaHref} class="hero__cta">
-        {hero.cta}
-      </a>
+    <div class="hero__layout">
+      <div class="hero__content">
+        <h1 class="hero__heading">
+          {headingLines.map((line, i) => (
+            <span
+              class:list={['hero__line', { 'hero__line--accent': i === lastLine }]}
+              style={`--line-index: ${i}`}
+            >
+              {line}
+            </span>
+          ))}
+        </h1>
+        <p class="hero__sub">{hero.subheading}</p>
+        <a href={hero.ctaHref} class="hero__cta">
+          {hero.cta}
+        </a>
+      </div>
+
+      <!-- Featured work — emerges from the darkness, edges masked into bg.
+           Sits beneath the barbed-wire ring (motif paints above). -->
+      <div class="hero__visual">
+        <Image
+          src={heroImage}
+          alt={hero.imageAlt}
+          class="hero__photo"
+          widths={[480, 720, 1080]}
+          sizes="(max-width: 900px) 86vw, 460px"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
     </div>
   </div>
 
-  <!-- Decorative thorn motif — inline SVG placeholder -->
+  <!-- Barbed-wire ring motif — masked div, no inline path duplication -->
   <div class="hero__motif" aria-hidden="true">
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="hero__motif-svg">
-      <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="1" opacity="0.15" />
-      <circle cx="100" cy="100" r="60" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.1" />
-    </svg>
+    <div class="hero__motif-ring"></div>
   </div>
 </section>
 
@@ -45,17 +68,56 @@ const headingLines = hero.heading.split('\n')
     display: flex;
     align-items: center;
     overflow: hidden;
-    padding-top: 4rem; /* nav height */
+    padding-top: var(--nav-height);
   }
 
+  /* Static film grain — ink under an industrial lamp, not flat #000 */
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* No z-index here — the ring motif (later sibling) must paint above the photo */
   .hero__inner {
     position: relative;
-    z-index: var(--z-above);
-    padding-block: var(--section-pad);
+  }
+
+  /* Row height = viewport minus nav, so the photo can span header → fold */
+  .hero__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 520px);
+    align-items: center;
+    gap: clamp(var(--space-8), 6vw, var(--space-24));
+    min-height: calc(100svh - var(--nav-height));
   }
 
   .hero__content {
     max-width: 760px;
+    padding-block: var(--space-16);
+  }
+
+  /* ── Featured work — header to fold, edges dissolved into the black ── */
+
+  .hero__visual {
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+
+  .hero__photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* DESIGN.md imagery treatment: shift toward monochrome, subject from shadow */
+    filter: grayscale(30%) contrast(1.08) brightness(0.9);
+    /* edges dissolve into --color-bg — the photo's own ground is near-black,
+       so a soft radial mask makes the seam invisible */
+    -webkit-mask-image: radial-gradient(92% 94% at 50% 50%, black 42%, transparent 84%);
+    mask-image: radial-gradient(92% 94% at 50% 50%, black 42%, transparent 84%);
   }
 
   .hero__heading {
@@ -67,6 +129,15 @@ const headingLines = hero.heading.split('\n')
     color: var(--color-ink);
     text-wrap: balance;
     margin-bottom: var(--space-6);
+  }
+
+  .hero__line {
+    display: block;
+  }
+
+  /* The single allowed non-neutral — emphasis lands on the closing line */
+  .hero__line--accent {
+    color: var(--color-accent);
   }
 
   .hero__sub {
@@ -98,24 +169,110 @@ const headingLines = hero.heading.split('\n')
     color: var(--color-bg);
   }
 
-  /* Decorative motif — bottom-right corner */
+  /* ── Barbed-wire ring motif — bottom-right, bleeding off-canvas ── */
+
   .hero__motif {
     position: absolute;
-    bottom: -80px;
-    right: -80px;
-    width: min(500px, 60vw);
-    color: var(--color-ink);
+    bottom: max(-22vw, -280px);
+    right: max(-22vw, -280px);
+    width: min(70vw, 880px);
+    aspect-ratio: 1;
     pointer-events: none;
+    transform: rotate(8deg);
   }
 
-  .hero__motif-svg {
-    width: 100%;
-    height: auto;
+  .hero__motif-ring {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-border);
+    -webkit-mask-image: url('/logo-ring.svg');
+    mask-image: url('/logo-ring.svg');
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+
+  /* ── First-visit entrance — choreographed with the Loader exit ── */
+
+  :global(html.first-visit) .hero__line {
+    animation: hero-rise 0.6s var(--ease-out-expo) both;
+    animation-delay: calc(1.45s + var(--line-index, 0) * 0.12s);
+  }
+
+  :global(html.first-visit) .hero__sub {
+    animation: hero-rise 0.6s var(--ease-out-expo) 1.72s both;
+  }
+
+  :global(html.first-visit) .hero__cta {
+    animation: hero-rise 0.6s var(--ease-out-expo) 1.84s both;
+  }
+
+  :global(html.first-visit) .hero__motif {
+    animation: motif-fade 1.2s var(--ease-out-expo) 1.6s both;
+  }
+
+  :global(html.first-visit) .hero__visual {
+    animation: visual-settle 1.4s var(--ease-out-expo) 1.65s both;
+  }
+
+  @keyframes visual-settle {
+    from {
+      opacity: 0;
+      transform: scale(1.03);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes hero-rise {
+    from {
+      opacity: 0;
+      transform: translateY(1.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes motif-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .hero__cta {
       transition: none;
+    }
+
+    :global(html.first-visit) .hero__line,
+    :global(html.first-visit) .hero__sub,
+    :global(html.first-visit) .hero__cta,
+    :global(html.first-visit) .hero__motif,
+    :global(html.first-visit) .hero__visual {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .hero__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .hero__content {
+      padding-block: var(--space-12) 0;
+    }
+
+    .hero__visual {
+      align-self: auto;
+      justify-self: center;
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 3 / 4;
+      max-height: 64svh;
     }
   }
 </style>

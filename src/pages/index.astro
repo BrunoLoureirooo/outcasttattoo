@@ -3,9 +3,39 @@ import Base from '@/layouts/Base.astro'
 import Nav from '@/components/shared/Nav.astro'
 import Footer from '@/components/shared/Footer.astro'
 import Hero from '@/components/sections/Hero.astro'
+import EventsList from '@/components/sections/EventsList.astro'
 import { strings } from '@/content/strings.pt.ts'
+import events from '@/data/events.json'
 
 const { pages } = strings.meta
+
+// JSON-LD Event markup for upcoming events (build-time filter matches EventsList)
+const today = new Date()
+today.setHours(0, 0, 0, 0)
+
+const eventsJsonLd = events
+  .filter(ev => new Date(ev.endDate ?? ev.date) >= today)
+  .map(ev => ({
+    '@context': 'https://schema.org',
+    '@type':    'Event',
+    name:        ev.name,
+    startDate:   ev.date,
+    ...(ev.endDate ? { endDate: ev.endDate } : {}),
+    ...(ev.url ? { url: ev.url } : {}),
+    location: {
+      '@type':          'Place',
+      name:              ev.location,
+      address: {
+        '@type':          'PostalAddress',
+        addressLocality:   ev.city,
+        addressCountry:   'PT',
+      },
+    },
+    performer: {
+      '@type': 'Organization',
+      name:     strings.jsonLd.name,
+    },
+  }))
 ---
 
 <Base
@@ -16,6 +46,10 @@ const { pages } = strings.meta
   <Nav />
   <main id="main-content">
     <Hero />
+    <EventsList />
   </main>
   <Footer />
+  {eventsJsonLd.length > 0 && (
+    <script type="application/ld+json" set:html={JSON.stringify(eventsJsonLd)} />
+  )}
 </Base>

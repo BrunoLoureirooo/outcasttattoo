@@ -8,6 +8,12 @@ import { strings } from '@/content/strings.pt.ts'
 
 const { sobre, jsonLd } = strings
 const addressLines = sobre.location.address.split('\n')
+
+const mapQuery = encodeURIComponent(
+  `${strings.meta.siteName}, ${jsonLd.address.street}, ${jsonLd.address.postal} ${jsonLd.address.city}, Portugal`
+)
+const mapEmbedUrl = `https://maps.google.com/maps?q=${mapQuery}&z=16&hl=pt&output=embed`
+const mapLinkUrl  = `https://maps.google.com/?q=${mapQuery}`
 ---
 
 <section class="location" aria-labelledby="location-heading">
@@ -30,19 +36,19 @@ const addressLines = sobre.location.address.split('\n')
         </div>
 
         <a
-          href={`https://maps.google.com/?q=${encodeURIComponent(jsonLd.address.street + ', ' + jsonLd.address.city + ', Portugal')}`}
+          href={mapLinkUrl}
           class="location__directions"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Ver no Google Maps ↗
+          {sobre.location.directions}
         </a>
       </div>
 
       <div class="location__map reveal" data-pending>
         <iframe
           title="Localização da Outcast Tattoo & Piercing"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3001.0!2d-8.8!3d39.7!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMznCsDQyJzAwLjAiTiA4wrA0OCcwMC4wIlc!5e0!3m2!1spt!2spt!4v1234567890"
+          src={mapEmbedUrl}
           width="100%"
           height="100%"
           style="border: 0;"
@@ -119,7 +125,8 @@ const addressLines = sobre.location.address.split('\n')
     aspect-ratio: 4 / 3;
     border: var(--border-width) solid var(--color-border);
     overflow: hidden;
-    filter: grayscale(100%) invert(90%);
+    /* dark-mode map: invert light tiles, restore contrast lost in inversion */
+    filter: grayscale(100%) invert(92%) contrast(108%) brightness(92%);
   }
 
   .location__map iframe {

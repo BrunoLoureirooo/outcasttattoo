@@ -1,0 +1,19 @@
+[
+  {
+    "id": "lisbon-tattoo-fest-2026",
+    "name": "Lisbon Tattoo Rock Fest",
+    "date": "2026-07-10",
+    "endDate": "2026-07-12",
+    "location": "Altice Arena",
+    "city": "Lisboa",
+    "url": "https://www.lisbontattoofest.com"
+  },
+  {
+    "id": "porto-tattoo-expo-2026",
+    "name": "Porto Tattoo Expo",
+    "date": "2026-09-19",
+    "endDate": "2026-09-20",
+    "location": "Alfândega do Porto",
+    "city": "Porto"
+  }
+]
