@@ -114,10 +114,10 @@ const lastLine = headingLines.length - 1
     object-fit: cover;
     /* DESIGN.md imagery treatment: shift toward monochrome, subject from shadow */
     filter: grayscale(30%) contrast(1.08) brightness(0.9);
-    /* edges dissolve into --color-bg — the photo's own ground is near-black,
-       so a soft radial mask makes the seam invisible */
-    -webkit-mask-image: radial-gradient(92% 94% at 50% 50%, black 42%, transparent 84%);
-    mask-image: radial-gradient(92% 94% at 50% 50%, black 42%, transparent 84%);
+    /* edges dissolve into --color-bg — fade starts early so the blend is wide
+       and gradual; center shifted right so the left edge (facing content) feathers more */
+    -webkit-mask-image: radial-gradient(86% 90% at 56% 50%, black 18%, transparent 66%);
+    mask-image: radial-gradient(86% 90% at 56% 50%, black 18%, transparent 66%);
   }
 
   .hero__heading {
@@ -260,19 +260,30 @@ const lastLine = headingLines.length - 1
   @media (max-width: 900px) {
     .hero__layout {
       grid-template-columns: 1fr;
+      align-items: start;
+      gap: var(--space-4);
+    }
+
+    /* Image floats to top of the viewport above the copy */
+    .hero__visual {
+      order: -1;
+      align-self: auto;
+      justify-self: stretch;
+      width: 100%;
+      max-width: 100%;
+      height: 46svh;
+      max-height: none;
+      aspect-ratio: unset;
+    }
+
+    /* Wider fade zone for the narrower portrait slot */
+    .hero__photo {
+      -webkit-mask-image: radial-gradient(105% 95% at 50% 40%, black 16%, transparent 65%);
+      mask-image: radial-gradient(105% 95% at 50% 40%, black 16%, transparent 65%);
     }
 
     .hero__content {
-      padding-block: var(--space-12) 0;
-    }
-
-    .hero__visual {
-      align-self: auto;
-      justify-self: center;
-      width: 100%;
-      max-width: 420px;
-      aspect-ratio: 3 / 4;
-      max-height: 64svh;
+      padding-block: 0 var(--space-10);
     }
   }
 </style>
