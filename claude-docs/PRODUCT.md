@@ -10,7 +10,7 @@ Portuguese adults, 18–36, skewing 70% male / 30% female. Tattoo collectors and
 
 ## Product Purpose
 
-Outcast Tattoo & Piercing is a custom street shop in Leira. The website exists to do three things: establish who Outcast is before a visitor scrolls, showcase the five artists and their portfolios, and funnel serious clients toward a Booksy booking. Success means a visitor lands, feels the brand in under three seconds, finds an artist whose work speaks to them, and books.
+Outcast Tattoo & Piercing is a custom street shop in Leira. The website exists to do three things: establish who Outcast is before a visitor scrolls, showcase the five artists and their portfolios, and funnel serious clients toward a booking. Success means a visitor lands, feels the brand in under three seconds, finds an artist whose work speaks to them, and books.
 
 ## Brand Personality
 

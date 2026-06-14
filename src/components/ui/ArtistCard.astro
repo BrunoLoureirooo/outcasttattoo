@@ -9,13 +9,16 @@ interface Props {
   bio:         string
   specialties: string[]
   services:    string[]
-  booksy_url:  string
   portrait?:   string
   portfolio:   string[]
 }
 
-const { id, name, bio, specialties, booksy_url, portrait, portfolio } = Astro.props
-const { sobre, lightbox, artistCard, artistDetail } = strings
+const { id, name, bio, specialties, services, portrait, portfolio } = Astro.props
+const { sobre, lightbox, artistCard, artistDetail, marcar } = strings
+
+function serviceLabel(s: string) {
+  return s === 'tattoo' ? marcar.services.tattoo : marcar.services.piercing
+}
 
 const images = import.meta.glob('/src/assets/artists/*.{webp,jpg,jpeg,png,avif}', {
   eager: true,
@@ -35,7 +38,7 @@ const portraitAlt    = sobre.portraitAlt.replace('{name}', name)
 const portfolioAlt   = sobre.portfolioAlt.replace('{name}', name)
 ---
 
-<article class="artist-card reveal" data-pending>
+<article class="artist-card reveal" data-pending data-artist-id={id}>
   <div class="artist-card__image-wrap">
     {portraitImg ? (
       <Image
@@ -97,17 +100,16 @@ const portfolioAlt   = sobre.portfolioAlt.replace('{name}', name)
     )}
 
     <div class="artist-card__actions">
-      <a href={`/marcar?artista=${id}`} class="artist-card__book">
+      <div class="artist-card__services" data-services-toggle>
+        {services.map(s => (
+          <button type="button" class="artist-card__service-btn" data-service={s} aria-pressed="false">
+            {serviceLabel(s)}
+          </button>
+        ))}
+      </div>
+      <button type="button" class="artist-card__book" data-book-btn disabled>
         {sobre.bookCta.replace('{name}', name)}
-      </a>
-      <a
-        href={booksy_url}
-        class="artist-card__booksy"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {sobre.booksyCta}
-      </a>
+      </button>
     </div>
   </div>
 
@@ -185,17 +187,16 @@ const portfolioAlt   = sobre.portfolioAlt.replace('{name}', name)
           </ul>
           <p class="artist-card__detail-bio">{bio}</p>
           <div class="artist-card__detail-actions">
-            <a href={`/marcar?artista=${id}`} class="artist-card__book">
+            <div class="artist-card__services" data-services-toggle>
+              {services.map(s => (
+                <button type="button" class="artist-card__service-btn" data-service={s} aria-pressed="false">
+                  {serviceLabel(s)}
+                </button>
+              ))}
+            </div>
+            <button type="button" class="artist-card__book" data-book-btn disabled>
               {sobre.bookCta.replace('{name}', name)}
-            </a>
-            <a
-              href={booksy_url}
-              class="artist-card__booksy"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {sobre.booksyCta}
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -405,13 +406,38 @@ const portfolioAlt   = sobre.portfolioAlt.replace('{name}', name)
     border-top: var(--border-width) solid var(--color-border);
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
     gap: var(--space-4);
     flex-wrap: wrap;
   }
 
-  .artist-card__book,
-  .artist-card__booksy {
+  .artist-card__book {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-accent-dim);
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: text-decoration-color var(--duration-fast) ease, opacity var(--duration-fast) ease;
+    white-space: nowrap;
+  }
+
+  .artist-card__book:hover:not(:disabled) {
+    text-decoration-color: var(--color-accent);
+  }
+
+  .artist-card__book:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+  }
+
+  .artist-card__book {
     font-family: var(--font-body);
     font-size: var(--text-sm);
     text-transform: uppercase;
@@ -421,23 +447,47 @@ const portfolioAlt   = sobre.portfolioAlt.replace('{name}', name)
     transition: text-decoration-color var(--duration-fast) ease;
   }
 
-  .artist-card__book {
-    color: var(--color-accent);
-    text-decoration-color: var(--color-accent-dim);
+  .artist-card__services {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
   }
 
-  .artist-card__book:hover {
-    text-decoration-color: var(--color-accent);
-  }
-
-  .artist-card__booksy {
+  .artist-card__service-btn {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
     color: var(--color-muted);
-    text-decoration-color: var(--color-border);
+    background: transparent;
+    border: var(--border-width) solid var(--color-border);
+    padding: var(--space-1) var(--space-4);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition:
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease,
+      opacity var(--duration-fast) ease;
   }
 
-  .artist-card__booksy:hover {
+  .artist-card__service-btn[aria-pressed="true"] {
     color: var(--color-accent);
-    text-decoration-color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  /* Dim unselected siblings when at least one is selected */
+  .artist-card__services:has([aria-pressed="true"]) .artist-card__service-btn[aria-pressed="false"] {
+    opacity: 0.35;
+  }
+
+  .artist-card__service-btn:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    opacity: 1;
+  }
+
+  .artist-card__service-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 
   /* ── Lightbox — native <dialog> ── */
@@ -707,8 +757,7 @@ const portfolioAlt   = sobre.portfolioAlt.replace('{name}', name)
     .artist-card__portrait,
     .artist-card__thumb,
     .artist-card__thumb-img,
-    .artist-card__book,
-    .artist-card__booksy,
+    .artist-card__service-btn,
     .artist-card__lightbox-btn,
     .artist-card__detail-trigger,
     .artist-card__detail-close,
@@ -757,6 +806,35 @@ const portfolioAlt   = sobre.portfolioAlt.replace('{name}', name)
         if (e.target === lightboxDialog) lightboxDialog.close()
       })
     }
+
+    // ── Service toggles + Marcar CTA ──
+    const artistId = (card as HTMLElement).dataset.artistId ?? ''
+    card.querySelectorAll<HTMLElement>('[data-services-toggle]').forEach(wrap => {
+      const serviceBtns = Array.from(wrap.querySelectorAll<HTMLButtonElement>('[data-service]'))
+      const bookBtn = wrap.parentElement?.querySelector<HTMLButtonElement>('[data-book-btn]')
+      if (!bookBtn) return
+
+      if (serviceBtns.length === 1) {
+        serviceBtns[0].setAttribute('aria-pressed', 'true')
+        bookBtn.disabled = false
+        bookBtn.dataset.bookHref = `/marcar?artista=${artistId}&servico=${serviceBtns[0].dataset.service}`
+      }
+
+      serviceBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')
+          const selected = serviceBtns.filter(b => b.getAttribute('aria-pressed') === 'true')
+          bookBtn.disabled = selected.length === 0
+          if (selected.length > 0) {
+            bookBtn.dataset.bookHref = `/marcar?artista=${artistId}&servico=${selected.map(b => b.dataset.service).join(',')}`
+          }
+        })
+      })
+
+      bookBtn.addEventListener('click', () => {
+        if (bookBtn.dataset.bookHref) window.location.href = bookBtn.dataset.bookHref
+      })
+    })
 
     // ── Artist detail popup ──
     const detailDialog = card.querySelector<HTMLDialogElement>('.artist-card__detail')

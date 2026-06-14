@@ -112,7 +112,7 @@ import { strings } from '@/content/strings.pt.ts'
 ## `src/data/`
 
 ### `artists.json`
-Artist records — names, bios, specialties, Booksy URLs, image paths. Components loop over this file. Adding a sixth artist means adding one JSON object here. No component changes needed.
+Artist records — names, bios, specialties, image paths. Components loop over this file. Adding a sixth artist means adding one JSON object here. No component changes needed.
 
 Minimum shape per artist:
 ```json
@@ -121,7 +121,6 @@ Minimum shape per artist:
   "name": "string",
   "bio": "string",
   "specialties": ["string"],
-  "booksy_url": "string",
   "portfolio": ["string"]
 }
 ```
@@ -165,7 +164,7 @@ The full booking form on `/marcar`. Three parts:
 2. Inline SVG body selector — front and back silhouettes, clickable areas, no JS library
 3. Description textarea
 
-On submit: redirects to the selected artist's Booksy page. Contains minimal inline script for area selection state only.
+On submit: sends to Formspree → shop email inbox. Contains minimal inline script for area selection state only.
 
 ---
 

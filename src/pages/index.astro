@@ -4,6 +4,7 @@ import Nav from '@/components/shared/Nav.astro'
 import Footer from '@/components/shared/Footer.astro'
 import Hero from '@/components/sections/Hero.astro'
 import EventsList from '@/components/sections/EventsList.astro'
+import LocationMap from '@/components/sections/LocationMap.astro'
 import { strings } from '@/content/strings.pt.ts'
 import events from '@/data/events.json'
 
@@ -48,6 +49,7 @@ const eventsJsonLd = events
     <Hero />
     <EventsList />
   </main>
+  <LocationMap />
   <Footer />
   {eventsJsonLd.length > 0 && (
     <script type="application/ld+json" set:html={JSON.stringify(eventsJsonLd)} />

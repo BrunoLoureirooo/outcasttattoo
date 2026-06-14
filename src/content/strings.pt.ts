@@ -86,7 +86,6 @@ export const strings = {
     heading:     'Os Artistas',
     intro:       'Cinco artistas. Uma linguagem. Arte feita para durar.',
     bookCta:     'Marcar com {name}',
-    booksyCta:   'Booksy ↗',
     specialties: 'Especialidades',
     viewWork:    'Ver trabalho',
     portfolioAlt: 'Trabalho de {name}',

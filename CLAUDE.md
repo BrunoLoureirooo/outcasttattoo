@@ -28,7 +28,7 @@ Website for a tattoo shop based in Portugal. Goals: visually captivating, maximu
 |---|---|---|
 | Landing | `/` | Hero, captivating entry point + upcoming events list |
 | About / Artists | `/sobre` | Shop info, location, artist cards |
-| Booking | `/marcar` | Body area selector + Booksy integration |
+| Booking | `/marcar` | Body area selector + Formspree submission |
 
 No additional pages for v1.
 
@@ -115,7 +115,6 @@ Artists are **data-driven** — defined in `src/data/artists.json`, never hardco
   "bio": "string",
   "specialties": ["string"],
   "services": ["tattoo", "piercing"],
-  "booksy_url": "string",
   "portrait": "string",
   "portfolio": ["string"]
 }
@@ -135,7 +134,6 @@ Artists are **data-driven** — defined in `src/data/artists.json`, never hardco
   4. **Description** — textarea
   5. **Submit** → Formspree → shop email inbox
 - File upload: v2 upgrade path via Cloudflare R2 + Worker (documented, not built)
-- Booksy links remain on artist cards on `/sobre` for direct booking
 
 ---
 
@@ -193,7 +191,7 @@ Artists are **data-driven** — defined in `src/data/artists.json`, never hardco
 ## Decisions Pending (v2+)
 
 - Contact/inquiry form (Formspree or Web3Forms)
-- File upload on booking (check Booksy first, then R2 + Worker)
+- File upload on booking (R2 + Worker upgrade path)
 - Custom domain via Cloudflare Registrar
 - PT + EN language toggle (strings architecture already prepares for this)
 - Gallery page, blog, flash designs, pricing, FAQ

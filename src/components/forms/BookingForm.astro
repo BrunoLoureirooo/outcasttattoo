@@ -1335,17 +1335,18 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
     })
   })
 
-  // ── Pre-select artist from URL param ─────────────────────────────────
+  // ── Pre-select artist and service from URL params ────────────────────
   const params = new URLSearchParams(window.location.search)
-  const artistParam = params.get('artista')
+  const artistParam  = params.get('artista')
+  const servicoParam = params.get('servico') ?? 'tattoo'
   if (artistParam) {
-    // Activate tattoo service by default when coming from artist card
-    const tattooBtn = document.querySelector<HTMLButtonElement>('[data-service="tattoo"]')
-    if (tattooBtn && !activeServices.has('tattoo')) {
-      tattooBtn.click()
-    }
-    // Select the matching artist card in the tattoo picker
-    const card = document.querySelector<HTMLElement>(`[data-artist-id="${artistParam}"][data-picker-target="tattoo"]`)
+    const services = servicoParam.split(',')
+    services.forEach(svc => {
+      const serviceBtn = document.querySelector<HTMLButtonElement>(`[data-service="${svc}"]`)
+      if (serviceBtn && !activeServices.has(svc)) serviceBtn.click()
+    })
+    const firstService = services[0]
+    const card = document.querySelector<HTMLElement>(`[data-artist-id="${artistParam}"][data-picker-target="${firstService}"]`)
     if (card) setTimeout(() => card.click(), 50)
   }
 

@@ -28,8 +28,6 @@ Two families only. No third family.
 
 **Instagram** — `outcast.tattoopiercing` — real, confirmed.
 
-**Booksy** — v2. `booksy_url` in `artists.json` is placeholder, unused in v1.
-
 ---
 
 ## Imagery
@@ -59,7 +57,5 @@ Two families only. No third family.
 **Reference link** — text field ("link de referência"). Instagram/Pinterest URL. No file upload in v1.
 
 **Submission target** — Formspree → shop email inbox. Email address TBD — no domain email exists yet. Formspree endpoint stored as env var `PUBLIC_FORMSPREE_ID`, placeholder until real address is set up.
-
-**Booksy** — v2. Not in v1. Artist cards on `/sobre` have no Booksy link for now. `booksy_url` field stays in `artists.json` schema but unused until v2.
 
 ---
