@@ -630,8 +630,11 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
       border-color var(--duration-fast) ease;
   }
 
-  .artist-pick-card[aria-pressed="true"] {
+  .artist-pick-card:hover:not(.dimmed) {
     flex: 5 1 0;
+  }
+
+  .artist-pick-card[aria-pressed="true"] {
     border-color: var(--color-accent);
   }
 
@@ -659,7 +662,7 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
     justify-content: center;
   }
 
-  .artist-pick-card[aria-pressed="true"] .artist-pick-card__avatar {
+  .artist-pick-card:hover:not(.dimmed) .artist-pick-card__avatar {
     position: absolute;
     inset: 0;
     font-size: clamp(8rem, 20vw, 14rem);
@@ -675,7 +678,7 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
     transition: color 0.3s ease;
   }
 
-  .artist-pick-card--dice[aria-pressed="true"] .artist-pick-card__avatar svg {
+  .artist-pick-card--dice:hover:not(.dimmed) .artist-pick-card__avatar svg {
     width: clamp(60px, 12vw, 100px);
     height: clamp(60px, 12vw, 100px);
     color: oklch(0.96 0 0 / 0.05);
@@ -699,7 +702,7 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
     pointer-events: none;
   }
 
-  .artist-pick-card[aria-pressed="true"] .artist-pick-card__details {
+  .artist-pick-card:hover:not(.dimmed) .artist-pick-card__details {
     opacity: 1;
     transform: none;
   }
