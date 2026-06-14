@@ -152,7 +152,7 @@ Full-screen opening section on `/`. Heading, subheading, CTA button, decorative 
 Artist listing section on `/sobre`. Reads `artists.json`, loops over it, renders one `ArtistCard` per artist. Grid uses `auto-fit` — works at any number of artists and any screen size without breakpoint hacks.
 
 **`LocationMap.astro`**
-Shop location section on `/sobre`. Address, hours, directions link, Google Maps iframe. The iframe carries `loading="lazy"` — doesn't block the page from painting.
+Shop location section. Address, hours, directions link, Google Maps iframe. The iframe carries `loading="lazy"` — doesn't block the page from painting. Used on all three pages (`/`, `/sobre`, `/marcar`), placed between `</main>` and `<Footer />`.
 
 ---
 
@@ -171,7 +171,7 @@ On submit: sends to Formspree → shop email inbox. Contains minimal inline scri
 ### `ui/` — smaller reusable pieces
 
 **`ArtistCard.astro`**
-Single artist card — portrait image, name, specialty tags, bio, portfolio button, booking link. Used inside `ArtistGrid`. Accepts artist data as props. Contains the native `<dialog>` portfolio lightbox (opens on "Ver portfólio"). Fully reusable regardless of content.
+Single artist card. Portrait image (SVG silhouette fallback), name, specialty tags, service labels (Tatuagem / Piercing), bio. Opens a native `<dialog>` detail popup on portrait hover/click — shows full portrait, bio, portfolio grid, service toggle buttons, and "Marcar" CTA that navigates to `/marcar?artista={id}&servico={selected}`. Portfolio lightbox is a second `<dialog>` triggered from thumbnails inside the detail popup.
 
 ---
 

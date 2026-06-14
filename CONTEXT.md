@@ -38,7 +38,7 @@ Two families only. No third family.
 
 **Hero background** — crown of thorns SVG motif (inline). No photography in v1 — none supplied yet. Photography is a v2 swap when client provides assets. Crown of thorns is intentional brand, not placeholder.
 
-**Artist cards** — no portraits in v1. Placeholder: large Grenze Gotisch initial centered in image area, `--color-muted`. Photography swapped in when client supplies assets. Portfolio section hidden in v1 — no images yet. Shown when images arrive.
+**Artist cards** — portrait image when available; fallback is an SVG silhouette (person outline) in `--color-border`. Portfolio thumbnails shown when images exist, hidden otherwise. Card has a detail popup (native `<dialog>`) with full portrait, bio, portfolio grid, service toggle, and "Marcar" CTA. Service tags (Tatuagem / Piercing) shown as static labels on the card face, driven by `services` field in `artists.json`.
 
 ---
 
