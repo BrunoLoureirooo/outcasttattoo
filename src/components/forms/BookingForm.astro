@@ -1345,9 +1345,10 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
       const serviceBtn = document.querySelector<HTMLButtonElement>(`[data-service="${svc}"]`)
       if (serviceBtn && !activeServices.has(svc)) serviceBtn.click()
     })
-    const firstService = services[0]
-    const card = document.querySelector<HTMLElement>(`[data-artist-id="${artistParam}"][data-picker-target="${firstService}"]`)
-    if (card) setTimeout(() => card.click(), 50)
+    services.forEach(svc => {
+      const card = document.querySelector<HTMLElement>(`[data-artist-id="${artistParam}"][data-picker-target="${svc}"]`)
+      if (card) setTimeout(() => card.click(), 50)
+    })
   }
 
   // ── Form submit via Formspree AJAX ────────────────────────────────────
