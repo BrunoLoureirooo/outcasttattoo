@@ -8,9 +8,7 @@
  * as the Loader overlay fades (loader exits 1.6s–2.1s). On return visits
  * there is no loader and no animation — content is static and visible.
  */
-import { Image } from 'astro:assets'
 import { strings } from '@/content/strings.pt.ts'
-import heroImage from '@/assets/hero/hero-blackwork.jpg'
 
 const { hero } = strings
 
@@ -42,12 +40,10 @@ const lastLine = headingLines.length - 1
       <!-- Featured work — emerges from the darkness, edges masked into bg.
            Sits beneath the barbed-wire ring (motif paints above). -->
       <div class="hero__visual">
-        <Image
-          src={heroImage}
+        <img
+          src="/images/hero-blackwork.jpg"
           alt={hero.imageAlt}
           class="hero__photo"
-          widths={[480, 720, 1080]}
-          sizes="(max-width: 900px) 86vw, 460px"
           loading="eager"
           fetchpriority="high"
         />
