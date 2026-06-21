@@ -182,36 +182,40 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
               <rect data-area="neck" data-label="Pescoço"
                 x="53" y="36" width="14" height="12"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Pescoço"/>
-              <rect data-area="chest" data-label="Peito"
-                x="34" y="48" width="52" height="52"
+              <path data-area="chest" data-label="Peito"
+                d="M 53,48 C 44,48 34,51 34,57 L 34,100 L 86,100 L 86,57 C 86,51 76,48 67,48 Z"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Peito"/>
-              <rect data-area="abdomen" data-label="Abdómen"
-                x="34" y="100" width="52" height="52"
+              <path data-area="abdomen" data-label="Abdómen"
+                d="M 34,100 L 34,152 L 52,152 Q 60,144 68,152 L 86,152 L 86,100 Z"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Abdómen"/>
-              <rect data-area="upper-arm-left" data-label="Braço esquerdo (superior)"
-                x="19" y="48" width="13" height="45"
-                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Braço esquerdo superior"/>
-              <rect data-area="forearm-left" data-label="Antebraço esquerdo"
-                x="19" y="93" width="13" height="37"
-                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Antebraço esquerdo"/>
-              <rect data-area="upper-arm-right" data-label="Braço direito (superior)"
-                x="88" y="48" width="13" height="45"
+              <!-- viewer's left = person's RIGHT arm -->
+              <path data-area="upper-arm-right" data-label="Braço direito (superior)"
+                d="M 19,54.5 A 6.5,6.5 0 0,1 32,54.5 L 32,93 L 19,93 Z"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Braço direito superior"/>
-              <rect data-area="forearm-right" data-label="Antebraço direito"
-                x="88" y="93" width="13" height="37"
+              <path data-area="forearm-right" data-label="Antebraço direito"
+                d="M 19,93 L 32,93 L 32,130 Q 25.5,136 19,130 Z"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Antebraço direito"/>
-              <rect data-area="thigh-left" data-label="Coxa esquerda"
-                x="34" y="152" width="18" height="56"
-                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Coxa esquerda"/>
-              <rect data-area="calf-left" data-label="Canela esquerda"
-                x="34" y="208" width="18" height="52"
-                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Canela esquerda"/>
+              <!-- viewer's right = person's LEFT arm -->
+              <path data-area="upper-arm-left" data-label="Braço esquerdo (superior)"
+                d="M 88,54.5 A 6.5,6.5 0 0,1 101,54.5 L 101,93 L 88,93 Z"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Braço esquerdo superior"/>
+              <path data-area="forearm-left" data-label="Antebraço esquerdo"
+                d="M 88,93 L 101,93 L 101,130 Q 94.5,136 88,130 Z"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Antebraço esquerdo"/>
+              <!-- viewer's left = person's RIGHT leg -->
               <rect data-area="thigh-right" data-label="Coxa direita"
-                x="68" y="152" width="18" height="56"
+                x="34" y="152" width="18" height="56" rx="2"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Coxa direita"/>
-              <rect data-area="calf-right" data-label="Canela direita"
-                x="68" y="208" width="18" height="52"
+              <path data-area="calf-right" data-label="Canela direita"
+                d="M 34,208 L 52,208 L 52,260 Q 43,266 34,260 Z"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Canela direita"/>
+              <!-- viewer's right = person's LEFT leg -->
+              <rect data-area="thigh-left" data-label="Coxa esquerda"
+                x="68" y="152" width="18" height="56" rx="2"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Coxa esquerda"/>
+              <path data-area="calf-left" data-label="Canela esquerda"
+                d="M 68,208 L 86,208 L 86,260 Q 77,266 68,260 Z"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Canela esquerda"/>
             </svg>
             <span class="body-map__label">{marcar.bodyArea.front}</span>
           </div>
@@ -228,36 +232,40 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
               <ellipse data-area="head-back" data-label="Cabeça (costas)"
                 cx="60" cy="19" rx="15" ry="17"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Cabeça (costas)"/>
-              <rect data-area="upper-back" data-label="Costas superiores"
-                x="34" y="48" width="52" height="52"
+              <path data-area="upper-back" data-label="Costas superiores"
+                d="M 53,48 C 44,48 34,51 34,57 L 34,100 L 86,100 L 86,57 C 86,51 76,48 67,48 Z"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Costas superiores"/>
-              <rect data-area="lower-back" data-label="Costas inferiores"
-                x="34" y="100" width="52" height="52"
+              <path data-area="lower-back" data-label="Costas inferiores"
+                d="M 34,100 L 34,152 L 52,152 Q 60,144 68,152 L 86,152 L 86,100 Z"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Costas inferiores"/>
-              <rect data-area="upper-arm-left-back" data-label="Braço esquerdo superior (costas)"
-                x="19" y="48" width="13" height="45"
-                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Braço esquerdo superior (costas)"/>
-              <rect data-area="forearm-left-back" data-label="Antebraço esquerdo (costas)"
-                x="19" y="93" width="13" height="37"
-                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Antebraço esquerdo (costas)"/>
-              <rect data-area="upper-arm-right-back" data-label="Braço direito superior (costas)"
-                x="88" y="48" width="13" height="45"
+              <!-- viewer's left = person's RIGHT arm (back) -->
+              <path data-area="upper-arm-right-back" data-label="Braço direito superior (costas)"
+                d="M 19,54.5 A 6.5,6.5 0 0,1 32,54.5 L 32,93 L 19,93 Z"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Braço direito superior (costas)"/>
-              <rect data-area="forearm-right-back" data-label="Antebraço direito (costas)"
-                x="88" y="93" width="13" height="37"
+              <path data-area="forearm-right-back" data-label="Antebraço direito (costas)"
+                d="M 19,93 L 32,93 L 32,130 Q 25.5,136 19,130 Z"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Antebraço direito (costas)"/>
-              <rect data-area="ham-left" data-label="Isquiotibial esquerdo"
-                x="34" y="152" width="18" height="56"
-                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Isquiotibial esquerdo"/>
-              <rect data-area="gemeo-left" data-label="Gémeo esquerdo"
-                x="34" y="208" width="18" height="52"
-                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Gémeo esquerdo"/>
+              <!-- viewer's right = person's LEFT arm (back) -->
+              <path data-area="upper-arm-left-back" data-label="Braço esquerdo superior (costas)"
+                d="M 88,54.5 A 6.5,6.5 0 0,1 101,54.5 L 101,93 L 88,93 Z"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Braço esquerdo superior (costas)"/>
+              <path data-area="forearm-left-back" data-label="Antebraço esquerdo (costas)"
+                d="M 88,93 L 101,93 L 101,130 Q 94.5,136 88,130 Z"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Antebraço esquerdo (costas)"/>
+              <!-- viewer's left = person's RIGHT leg (back) -->
               <rect data-area="ham-right" data-label="Isquiotibial direito"
-                x="68" y="152" width="18" height="56"
+                x="34" y="152" width="18" height="56" rx="2"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Isquiotibial direito"/>
-              <rect data-area="gemeo-right" data-label="Gémeo direito"
-                x="68" y="208" width="18" height="52"
+              <path data-area="gemeo-right" data-label="Gémeo direito"
+                d="M 34,208 L 52,208 L 52,260 Q 43,266 34,260 Z"
                 class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Gémeo direito"/>
+              <!-- viewer's right = person's LEFT leg (back) -->
+              <rect data-area="ham-left" data-label="Isquiotibial esquerdo"
+                x="68" y="152" width="18" height="56" rx="2"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Isquiotibial esquerdo"/>
+              <path data-area="gemeo-left" data-label="Gémeo esquerdo"
+                d="M 68,208 L 86,208 L 86,260 Q 77,266 68,260 Z"
+                class="body-map__area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Gémeo esquerdo"/>
             </svg>
             <span class="body-map__label">{marcar.bodyArea.back}</span>
           </div>
@@ -490,6 +498,7 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
       </div>
     </form>
   </div>
+  <div class="body-tooltip" id="body-tooltip" aria-hidden="true"></div>
 </section>
 
 <style>
@@ -1096,6 +1105,29 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
     }
   }
 
+  /* ── Body area tooltip ───────────────────────── */
+
+  .body-tooltip {
+    position: fixed;
+    z-index: 200;
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px var(--space-3);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+    white-space: nowrap;
+  }
+
+  .body-tooltip.visible {
+    opacity: 1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .service-btn,
     .artist-pick-card,
@@ -1319,6 +1351,41 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
       tab.classList.add('piercing-tab--active')
       document.getElementById(panelId)!.hidden = false
     })
+  })
+
+  // ── Body area / piercing tooltip ─────────────────────────────────
+  const tooltip = document.getElementById('body-tooltip') as HTMLElement
+  let tooltipTimer: ReturnType<typeof setTimeout> | null = null
+
+  function positionTooltip(x: number, y: number) {
+    tooltip.style.left = `${x + 14}px`
+    tooltip.style.top  = `${y - 10}px`
+  }
+
+  function showTooltip(label: string, x: number, y: number) {
+    if (tooltipTimer) clearTimeout(tooltipTimer)
+    tooltip.textContent = label
+    positionTooltip(x, y)
+    tooltipTimer = setTimeout(() => tooltip.classList.add('visible'), 280)
+  }
+
+  function hideTooltip() {
+    if (tooltipTimer) { clearTimeout(tooltipTimer); tooltipTimer = null }
+    tooltip.classList.remove('visible')
+  }
+
+  document.querySelectorAll<SVGElement>('.body-map__area, .piercing-point').forEach(el => {
+    el.addEventListener('mouseenter', (e) => {
+      const label = el.getAttribute('data-label') ?? ''
+      if (!label) return
+      const { clientX, clientY } = e as MouseEvent
+      showTooltip(label, clientX, clientY)
+    })
+    el.addEventListener('mousemove', (e) => {
+      const { clientX, clientY } = e as MouseEvent
+      positionTooltip(clientX, clientY)
+    })
+    el.addEventListener('mouseleave', hideTooltip)
   })
 
   // ── Size selection ───────────────────────────────────────────────────
