@@ -5,6 +5,7 @@ import Footer from '@/components/shared/Footer.astro'
 import Hero from '@/components/sections/Hero.astro'
 import EventsList from '@/components/sections/EventsList.astro'
 import LocationMap from '@/components/sections/LocationMap.astro'
+import Loader from '@/components/shared/Loader.astro'
 import { strings } from '@/content/strings.pt.ts'
 import events from '@/data/events.json'
 
@@ -44,6 +45,7 @@ const eventsJsonLd = events
   description={pages.home.description}
   ogImage={pages.home.ogImage}
 >
+  <Loader />
   <Nav />
   <main id="main-content">
     <Hero />

@@ -76,7 +76,9 @@ import { strings } from '@/content/strings.pt.ts'
     width: clamp(180px, 42vw, 300px);
     aspect-ratio: 1;
     position: relative;
-    will-change: transform;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 0 4px var(--color-bg);
 
     animation: logo-breathe 3s ease-in-out 0.9s infinite;
   }
@@ -89,6 +91,16 @@ import { strings } from '@/content/strings.pt.ts'
     height: 100%;
     display: block;
     user-select: none;
+  }
+
+  .loader-logo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 3px var(--color-bg);
+    pointer-events: none;
+    z-index: 1;
   }
 
   /* ─── Keyframes ──────────────────────────────────────── */
@@ -120,30 +132,6 @@ import { strings } from '@/content/strings.pt.ts'
 
 <script>
   (function () {
-    // Skip on subsequent page visits within the same session
-    if (sessionStorage.getItem('loader-played')) {
-      const loader = document.getElementById('loader')
-      loader?.remove()
-      return
-    }
-    sessionStorage.setItem('loader-played', '1')
-
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    if (prefersReduced) {
-      // Reveal ring immediately, no sweep
-      const sector = document.getElementById('loader-ring-sector') as SVGPathElement | null
-      if (sector) sector.setAttribute('d', fullCircle())
-      removeLoader(900)
-      return
-    }
-
-    // ── Sector path math ──────────────────────────────────────────────
-    // SVG canvas: 400×400. Ring fills roughly the whole canvas so r=260
-    // keeps the clip larger than the ring's outermost points.
-    // Starting angle: θ = π → 6 o'clock (bottom centre).
-    // CCW on screen = decreasing θ (CSS/SVG Y axis flipped vs maths).
-    // Point on circle: x = cx + r·sin(θ), y = cy - r·cos(θ)
     const CX = 200, CY = 200, R = 260
 
     function ptOnCircle(theta: number): [number, number] {
@@ -151,7 +139,6 @@ import { strings } from '@/content/strings.pt.ts'
     }
 
     function fullCircle(): string {
-      // Two half-arcs to describe a full circle
       return `M ${CX},${CY} m 0,${R} a ${R},${R} 0 1,0 0,${-2 * R} a ${R},${R} 0 1,0 0,${2 * R} Z`
     }
 
@@ -159,43 +146,55 @@ import { strings } from '@/content/strings.pt.ts'
       if (progress <= 0) return ''
       if (progress >= 0.9999) return fullCircle()
 
-      const thetaStart = Math.PI                           // 6 o'clock
-      const thetaEnd   = thetaStart - progress * 2 * Math.PI  // CCW
+      const thetaStart = Math.PI
+      const thetaEnd   = thetaStart - progress * 2 * Math.PI
+      const [x1, y1]   = ptOnCircle(thetaStart)
 
-      const [x1, y1] = ptOnCircle(thetaStart)
-      const [x2, y2] = ptOnCircle(thetaEnd)
-      const largeArc  = progress > 0.5 ? 1 : 0
-      // sweep-flag=0 → CCW arc in SVG coordinate space
-      return `M ${CX},${CY} L ${x1},${y1} A ${R},${R} 0 ${largeArc},0 ${x2},${y2} Z`
-    }
-
-    // ── Animation loop ────────────────────────────────────────────────
-    const DELAY    = 150   // ms before sweep starts
-    const DURATION = 800   // ms for full CCW sweep
-
-    const sector = document.getElementById('loader-ring-sector') as SVGPathElement | null
-    if (!sector) return
-
-    let startTime: number | null = null
-
-    function tick(now: number) {
-      if (startTime === null) startTime = now
-      const elapsed  = now - startTime - DELAY
-      const progress = Math.max(0, Math.min(1, elapsed / DURATION))
-
-      sector!.setAttribute('d', sectorPath(progress))
-
-      if (progress < 1) {
-        requestAnimationFrame(tick)
+      // Split into 12 segments (every 30°, like clock hours) so each arc
+      // stays at ≤ 30° and large-arc-flag is always 0.
+      const waypoints: number[] = []
+      for (let i = 1; i < 12; i++) {
+        const tq = Math.PI - (i / 12) * 2 * Math.PI
+        if (tq > thetaEnd) waypoints.push(tq)
       }
+      waypoints.push(thetaEnd)
+
+      let d = `M ${CX},${CY} L ${x1},${y1}`
+      for (const t of waypoints) {
+        const [x, y] = ptOnCircle(t)
+        d += ` A ${R},${R} 0 0,0 ${x},${y}`
+      }
+      return d + ' Z'
     }
 
-    requestAnimationFrame(tick)
-    removeLoader(2150)
+    const DELAY    = 150
+    const DURATION = 800
 
-    function removeLoader(delay: number) {
-      const loader = document.getElementById('loader')
-      if (loader) setTimeout(() => loader.remove(), delay)
+    function runCycle() {
+      const sector = document.getElementById('loader-ring-sector') as SVGPathElement | null
+      const loader = document.getElementById('loader') as HTMLElement | null
+      if (!sector || !loader) return
+
+      sector.setAttribute('d', '')
+      loader.style.cssText = 'opacity:1;visibility:visible;animation:none'
+
+      let startTime: number | null = null
+      function tick(now: number) {
+        if (startTime === null) startTime = now
+        const elapsed  = now - startTime - DELAY
+        const progress = Math.max(0, Math.min(1, elapsed / DURATION))
+        sector!.setAttribute('d', sectorPath(progress))
+        if (progress < 1) requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
+
+      setTimeout(() => {
+        loader.style.transition = 'opacity 0.5s'
+        loader.style.opacity = '0'
+        setTimeout(() => loader.remove(), 500)
+      }, 1600)
     }
+
+    runCycle()
   })()
 </script>
