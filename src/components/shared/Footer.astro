@@ -19,26 +19,38 @@ const year = new Date().getFullYear()
       <p class="footer__tagline">{footer.tagline}</p>
     </div>
 
-    <div class="footer__info">
+    <div class="footer__col">
+      <p class="footer__label">{footer.addressLabel}</p>
       <address class="footer__address">
-        {footer.address}
+        {footer.address.split('\n').map(line => <span class="footer__address-line">{line}</span>)}
       </address>
-      <div class="footer__hours">
-        <p>{footer.hours.label}</p>
-        <p>{footer.hours.weekdays}</p>
-        <p>{footer.hours.saturday}</p>
-      </div>
     </div>
 
-    <div class="footer__social">
+    <div class="footer__col">
+      <p class="footer__label">{footer.hours.label}</p>
+      <p class="footer__line">{footer.hours.weekdays}</p>
+      <p class="footer__line">{footer.hours.saturday}</p>
+    </div>
+
+    <div class="footer__col footer__col--social">
+      <p class="footer__label">{footer.social}</p>
       <a
         href={jsonLd.instagram}
-        class="footer__instagram"
+        class="footer__social-link"
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${strings.meta.siteName} no ${footer.instagram}`}
       >
         {footer.instagram}
+      </a>
+      <a
+        href={jsonLd.tiktok}
+        class="footer__social-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${strings.meta.siteName} no ${footer.tiktok}`}
+      >
+        {footer.tiktok}
       </a>
     </div>
   </div>
@@ -63,10 +75,20 @@ const year = new Date().getFullYear()
 
   .footer__inner {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
     gap: var(--space-8);
     padding-bottom: var(--space-8);
     border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  /* Four columns of equal grammar: brand widest, social pinned to the right
+     edge mirroring the brand on the left */
+  @media (min-width: 700px) {
+    .footer__inner {
+      grid-template-columns: 1.6fr 1fr 1fr auto;
+      gap: var(--space-12);
+      align-items: start;
+    }
   }
 
   .footer__name {
@@ -82,37 +104,47 @@ const year = new Date().getFullYear()
     color: var(--color-muted);
   }
 
-  .footer__info {
+  .footer__col {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-2);
+  }
+
+  /* Shared column label — same top rhythm on every column */
+  .footer__label {
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--space-1);
   }
 
   .footer__address {
     font-style: normal;
     font-size: var(--text-sm);
     color: var(--color-muted);
-    line-height: 1.6;
+    line-height: 1.7;
   }
 
-  .footer__hours {
+  .footer__address-line {
+    display: block;
+  }
+
+  .footer__line {
     font-size: var(--text-sm);
     color: var(--color-muted);
-    line-height: 1.8;
+    line-height: 1.7;
   }
 
-  .footer__hours p:first-child {
-    color: var(--color-ink);
-    font-weight: 700;
-    margin-bottom: var(--space-1);
+  @media (min-width: 700px) {
+    .footer__col--social {
+      justify-self: end;
+      align-items: flex-end;
+      text-align: right;
+    }
   }
 
-  .footer__social {
-    display: flex;
-    align-items: flex-start;
-  }
-
-  .footer__instagram {
+  .footer__social-link {
     font-size: var(--text-sm);
     color: var(--color-muted);
     letter-spacing: 0.06em;
@@ -123,7 +155,7 @@ const year = new Date().getFullYear()
     text-decoration-color: var(--color-border);
   }
 
-  .footer__instagram:hover {
+  .footer__social-link:hover {
     color: var(--color-accent);
     text-decoration-color: var(--color-accent);
   }

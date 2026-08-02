@@ -1,0 +1,344 @@
+---
+/**
+ * PiecesGallery.astro — full pieces archive with filters + lightbox
+ * Used on: /trabalhos
+ * Filters: service, artist, style — single-select per group, client-side island.
+ * Each piece opens a native <dialog> lightbox: angle carousel, caption,
+ * "Ver artista" CTA → /sobre#<artist-id> (auto-opens the artist detail dialog).
+ */
+import { Image } from 'astro:assets'
+import ChainDivider from '@/components/shared/ChainDivider.astro'
+import PieceLightbox from '@/components/ui/PieceLightbox.astro'
+import { strings } from '@/content/strings.pt.ts'
+import { getPieces } from '@/lib/directus.ts'
+
+const { trabalhos, marcar } = strings
+const pieces = await getPieces()
+
+function serviceLabel(s: string) {
+  return s === 'tattoo' ? marcar.services.tattoo : marcar.services.piercing
+}
+
+function pieceAlt(altText: string | undefined, artistName: string): string {
+  return altText ?? trabalhos.pieceAlt.replace('{artist}', artistName)
+}
+
+// Filter options derive from the data actually present
+const serviceOptions = [...new Set(pieces.map(p => p.service))]
+const artistOptions  = [...new Map(pieces.map(p => [p.artistId, p.artistName])).entries()]
+const styleOptions   = [...new Set(pieces.flatMap(p => p.styles))].sort((a, b) => a.localeCompare(b, 'pt'))
+
+const filterGroups = [
+  {
+    key: 'service',
+    label: trabalhos.filters.service,
+    options: serviceOptions.map(s => ({ value: s, label: serviceLabel(s) })),
+  },
+  {
+    key: 'artist',
+    label: trabalhos.filters.artist,
+    options: artistOptions.map(([id, name]) => ({ value: id, label: name })),
+  },
+  {
+    key: 'style',
+    label: trabalhos.filters.style,
+    options: styleOptions.map(s => ({ value: s, label: s })),
+  },
+]
+---
+
+<section class="pieces" aria-labelledby="pieces-heading">
+  <div class="container">
+    <header class="pieces__header reveal" data-pending>
+      <h1 id="pieces-heading" class="pieces__heading">{trabalhos.heading}</h1>
+      <p class="pieces__intro">{trabalhos.intro}</p>
+      <ChainDivider />
+    </header>
+
+    {pieces.length > 0 && (
+      <div class="pieces__filters" role="group" aria-label={trabalhos.filters.label}>
+        {filterGroups.filter(g => g.options.length > 1).map(group => (
+          <fieldset class="pieces__filter-group" data-filter-group={group.key}>
+            <legend class="pieces__filter-label">{group.label}</legend>
+            <div class="pieces__filter-options">
+              <button type="button" class="pieces__filter-btn" data-filter-value="" aria-pressed="true">
+                {trabalhos.filters.all}
+              </button>
+              {group.options.map(opt => (
+                <button type="button" class="pieces__filter-btn" data-filter-value={opt.value} aria-pressed="false">
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+        ))}
+      </div>
+    )}
+
+    <div class="pieces__grid">
+      {pieces.map(piece => (
+        <div
+          class="pieces__item reveal"
+          data-pending
+          data-service={piece.service}
+          data-artist={piece.artistId}
+          data-styles={piece.styles.join('|')}
+        >
+          <button
+            type="button"
+            class="pieces__tile"
+            data-piece-open={piece.id}
+            aria-haspopup="dialog"
+            aria-label={pieceAlt(piece.altText, piece.artistName)}
+          >
+            <Image
+              src={piece.images[0]}
+              alt={pieceAlt(piece.altText, piece.artistName)}
+              inferSize
+              widths={[320, 480, 640]}
+              sizes="(max-width: 640px) 50vw, 25vw"
+              class="pieces__img"
+            />
+            {piece.images.length > 1 && (
+              <span class="pieces__multi" aria-hidden="true">⧉ {piece.images.length}</span>
+            )}
+            <span class="pieces__tile-artist">{piece.artistName}</span>
+          </button>
+
+          <PieceLightbox piece={piece} />
+        </div>
+      ))}
+    </div>
+
+    <p class="pieces__empty" data-empty hidden={pieces.length > 0}>{trabalhos.empty}</p>
+  </div>
+</section>
+
+<style>
+  .pieces {
+    padding-block: var(--section-pad);
+  }
+
+  .pieces__header {
+    margin-bottom: var(--space-12);
+  }
+
+  .pieces__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: 900;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-3);
+  }
+
+  .pieces__intro {
+    font-size: var(--text-lg);
+    color: var(--color-muted);
+    max-width: 50ch;
+    margin-bottom: var(--space-8);
+  }
+
+  /* ── Filters ── */
+
+  .pieces__filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-12);
+  }
+
+  .pieces__filter-group {
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .pieces__filter-label {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+    float: left;
+    min-width: 5rem;
+  }
+
+  .pieces__filter-options {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .pieces__filter-btn {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    background: transparent;
+    border: var(--border-width) solid var(--color-border);
+    padding: var(--space-1) var(--space-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition:
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease;
+  }
+
+  .pieces__filter-btn[aria-pressed="true"] {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .pieces__filter-btn:hover,
+  .pieces__filter-btn:focus-visible {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .pieces__filter-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ── Grid ── */
+
+  .pieces__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .pieces__item[hidden] {
+    display: none;
+  }
+
+  .pieces__tile {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border: var(--border-width) solid var(--color-border);
+    background: var(--color-surface);
+    cursor: pointer;
+    transition: border-color var(--duration-fast) ease;
+  }
+
+  .pieces__tile:hover,
+  .pieces__tile:focus-visible {
+    border-color: var(--color-accent);
+  }
+
+  .pieces__tile:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .pieces__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(25%);
+    transition: transform 0.4s var(--ease-out-expo), filter var(--duration-fast) ease;
+  }
+
+  .pieces__tile:hover .pieces__img {
+    transform: scale(1.04);
+    filter: grayscale(0%);
+  }
+
+  .pieces__multi {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    background: oklch(0.05 0 0 / 0.72);
+    padding: 2px var(--space-2);
+    letter-spacing: 0.06em;
+  }
+
+  .pieces__tile-artist {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: var(--space-2) var(--space-3);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-ink);
+    background: oklch(0.05 0 0 / 0.72);
+    text-align: left;
+  }
+
+  .pieces__empty {
+    font-size: var(--text-base);
+    color: var(--color-muted);
+    padding-block: var(--space-12);
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pieces__tile,
+    .pieces__img,
+    .pieces__filter-btn {
+      transition: none;
+    }
+
+    .pieces__tile:hover .pieces__img {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  // ── Filtering — single-select per group, AND across groups ──
+  const empty = document.querySelector<HTMLElement>('[data-empty]')
+  const items = Array.from(document.querySelectorAll<HTMLElement>('.pieces__item'))
+  const active: Record<string, string> = { service: '', artist: '', style: '' }
+
+  function applyFilters() {
+    let visible = 0
+    items.forEach(item => {
+      const styles = (item.dataset.styles ?? '').split('|')
+      const show =
+        (!active.service || item.dataset.service === active.service) &&
+        (!active.artist  || item.dataset.artist === active.artist) &&
+        (!active.style   || styles.includes(active.style))
+      item.hidden = !show
+      if (show) visible++
+    })
+    if (empty) empty.hidden = visible > 0
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-filter-group]').forEach(group => {
+    const key  = group.dataset.filterGroup!
+    const btns = Array.from(group.querySelectorAll<HTMLButtonElement>('[data-filter-value]'))
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        active[key] = btn.dataset.filterValue ?? ''
+        btns.forEach(b => b.setAttribute('aria-pressed', String(b === btn)))
+        applyFilters()
+      })
+    })
+  })
+
+  // ── Deep-linked filters — /trabalhos?estilo=X&artista=Y&servico=Z ──
+  const params = new URLSearchParams(window.location.search)
+  const paramToGroup: Record<string, string> = { servico: 'service', artista: 'artist', estilo: 'style' }
+  for (const [param, group] of Object.entries(paramToGroup)) {
+    const value = params.get(param)
+    if (!value) continue
+    document.querySelector<HTMLButtonElement>(
+      `[data-filter-group="${group}"] [data-filter-value="${CSS.escape(value)}"]`
+    )?.click()
+  }
+</script>

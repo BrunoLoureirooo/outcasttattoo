@@ -1,0 +1,168 @@
+---
+/**
+ * LatestPieces.astro — landing teaser strip of the latest pieces
+ * Used on: / (index, below Hero)
+ * Shows the 6 most recent pieces (no filters) and links to /trabalhos.
+ * Renders nothing when there are no pieces (e.g. local dev without Directus).
+ */
+import { Image } from 'astro:assets'
+import ChainDivider from '@/components/shared/ChainDivider.astro'
+import { strings } from '@/content/strings.pt.ts'
+import { getPieces } from '@/lib/directus.ts'
+
+const { trabalhos } = strings
+
+const TEASER_SIZE = 6
+const latest = (await getPieces()).slice(0, TEASER_SIZE)
+
+function pieceAlt(altText: string | undefined, artistName: string): string {
+  return altText ?? trabalhos.pieceAlt.replace('{artist}', artistName)
+}
+---
+
+{latest.length > 0 && (
+  <section class="latest-pieces" aria-labelledby="latest-pieces-heading">
+    <div class="container">
+      <header class="latest-pieces__header reveal" data-pending>
+        <h2 id="latest-pieces-heading" class="latest-pieces__heading">{trabalhos.heading}</h2>
+        <p class="latest-pieces__intro">{trabalhos.intro}</p>
+        <ChainDivider />
+      </header>
+
+      <div class="latest-pieces__grid">
+        {latest.map(piece => (
+          <a
+            href="/trabalhos"
+            class="latest-pieces__tile reveal"
+            data-pending
+            aria-label={pieceAlt(piece.altText, piece.artistName)}
+          >
+            <Image
+              src={piece.images[0]}
+              alt={pieceAlt(piece.altText, piece.artistName)}
+              inferSize
+              widths={[320, 480, 640]}
+              sizes="(max-width: 640px) 50vw, 25vw"
+              class="latest-pieces__img"
+            />
+            <span class="latest-pieces__tile-artist">{piece.artistName}</span>
+          </a>
+        ))}
+      </div>
+
+      <p class="latest-pieces__cta-row reveal" data-pending>
+        <a href="/trabalhos" class="latest-pieces__cta">{trabalhos.teaserCta}</a>
+      </p>
+    </div>
+  </section>
+)}
+
+<style>
+  .latest-pieces {
+    padding-block: var(--section-pad);
+  }
+
+  .latest-pieces__header {
+    margin-bottom: var(--space-12);
+  }
+
+  .latest-pieces__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-3);
+  }
+
+  .latest-pieces__intro {
+    font-size: var(--text-base);
+    color: var(--color-muted);
+    max-width: 50ch;
+    margin-bottom: var(--space-8);
+  }
+
+  .latest-pieces__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .latest-pieces__tile {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border: var(--border-width) solid var(--color-border);
+    background: var(--color-surface);
+    transition: border-color var(--duration-fast) ease;
+  }
+
+  .latest-pieces__tile:hover,
+  .latest-pieces__tile:focus-visible {
+    border-color: var(--color-accent);
+  }
+
+  .latest-pieces__tile:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .latest-pieces__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(25%);
+    transition: transform 0.4s var(--ease-out-expo), filter var(--duration-fast) ease;
+  }
+
+  .latest-pieces__tile:hover .latest-pieces__img {
+    transform: scale(1.04);
+    filter: grayscale(0%);
+  }
+
+  .latest-pieces__tile-artist {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: var(--space-2) var(--space-3);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-ink);
+    background: oklch(0.05 0 0 / 0.72);
+  }
+
+  .latest-pieces__cta-row {
+    margin-top: var(--space-8);
+  }
+
+  .latest-pieces__cta {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-accent-dim);
+    transition: text-decoration-color var(--duration-fast) ease;
+  }
+
+  .latest-pieces__cta:hover {
+    text-decoration-color: var(--color-accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .latest-pieces__tile,
+    .latest-pieces__img,
+    .latest-pieces__cta {
+      transition: none;
+    }
+
+    .latest-pieces__tile:hover .latest-pieces__img {
+      transform: none;
+    }
+  }
+</style>

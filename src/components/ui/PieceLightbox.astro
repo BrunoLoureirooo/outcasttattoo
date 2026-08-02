@@ -1,0 +1,318 @@
+---
+/**
+ * PieceLightbox.astro — shared piece detail popup (native <dialog>)
+ * Used on: /trabalhos (PiecesGallery) and /sobre (ArtistCard portfolio)
+ *
+ * Render one instance per piece; open it from any element carrying
+ * `data-piece-open={piece.id}`. Controls overlay the image (close, prev/next,
+ * counter); caption is the artist name (→ /sobre#slug) with style tags under it.
+ * Style tag click: activates the matching filter when the page has a filter bar
+ * (/trabalhos), otherwise navigates to /trabalhos?estilo=<name>.
+ */
+import { Image } from 'astro:assets'
+import { strings } from '@/content/strings.pt.ts'
+import type { Piece } from '@/lib/directus.ts'
+
+interface Props {
+  piece: Piece
+}
+
+const { piece } = Astro.props
+const { trabalhos, lightbox } = strings
+
+const alt = piece.altText ?? trabalhos.pieceAlt.replace('{artist}', piece.artistName)
+---
+
+<dialog class="piece-lightbox" id={`piece-lb-${piece.id}`} aria-label={alt}>
+  <div class="piece-lightbox__frame">
+    {piece.images.map((img, i) => (
+      <figure class="piece-lightbox__slide" hidden={i !== 0}>
+        <Image
+          src={img}
+          alt={`${alt} ${i + 1}`}
+          inferSize
+          widths={[640, 960, 1280]}
+          sizes="90vw"
+          class="piece-lightbox__slide-img"
+        />
+      </figure>
+    ))}
+
+    <button type="button" class="piece-lightbox__ctrl piece-lightbox__ctrl--close" data-close aria-label={lightbox.close}>
+      <span aria-hidden="true">×</span>
+    </button>
+    {piece.images.length > 1 && (
+      <>
+        <button type="button" class="piece-lightbox__ctrl piece-lightbox__ctrl--prev" data-prev aria-label={lightbox.previous}>
+          <span aria-hidden="true">←</span>
+        </button>
+        <button type="button" class="piece-lightbox__ctrl piece-lightbox__ctrl--next" data-next aria-label={lightbox.next}>
+          <span aria-hidden="true">→</span>
+        </button>
+        <span class="piece-lightbox__count" data-count-template={trabalhos.imageCount.replace('{total}', String(piece.images.length))}>
+          {trabalhos.imageCount.replace('{current}', '1').replace('{total}', String(piece.images.length))}
+        </span>
+      </>
+    )}
+  </div>
+
+  <div class="piece-lightbox__caption">
+    <a
+      href={`/sobre#${piece.artistId}`}
+      class="piece-lightbox__artist"
+      aria-label={`${trabalhos.viewArtist} — ${piece.artistName}`}
+    >
+      {piece.artistName}
+    </a>
+    {piece.styles.length > 0 && (
+      <div class="piece-lightbox__styles">
+        {piece.styles.map(s => (
+          <a
+            href={`/trabalhos?estilo=${encodeURIComponent(s)}`}
+            class="piece-lightbox__style"
+            data-style-jump={s}
+          >
+            {s}
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</dialog>
+
+<style>
+  .piece-lightbox {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    background: var(--color-bg);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
+    max-width: min(90vw, 920px);
+    max-height: 90svh;
+  }
+
+  .piece-lightbox::backdrop {
+    background: oklch(0.05 0 0 / 0.88);
+  }
+
+  .piece-lightbox__frame {
+    position: relative;
+  }
+
+  .piece-lightbox__slide {
+    margin: 0;
+  }
+
+  .piece-lightbox__slide-img {
+    display: block;
+    max-width: 100%;
+    max-height: 72svh;
+    width: auto;
+    height: auto;
+    margin-inline: auto;
+  }
+
+  /* ── Controls — overlaid on the image ── */
+
+  .piece-lightbox__ctrl {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-family: var(--font-body);
+    font-size: var(--text-xl);
+    line-height: 1;
+    color: var(--color-ink);
+    background: oklch(0.05 0 0 / 0.6);
+    border: var(--border-width) solid var(--color-border);
+    cursor: pointer;
+    transition:
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease,
+      background var(--duration-fast) ease;
+  }
+
+  .piece-lightbox__ctrl:hover,
+  .piece-lightbox__ctrl:focus-visible {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: oklch(0.05 0 0 / 0.8);
+  }
+
+  .piece-lightbox__ctrl:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .piece-lightbox__ctrl--close {
+    top: var(--space-2);
+    right: var(--space-2);
+  }
+
+  .piece-lightbox__ctrl--prev {
+    left: var(--space-2);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .piece-lightbox__ctrl--next {
+    right: var(--space-2);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .piece-lightbox__count {
+    position: absolute;
+    bottom: var(--space-2);
+    right: var(--space-2);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    background: oklch(0.05 0 0 / 0.6);
+    padding: 2px var(--space-2);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Caption — artist name, styles row underneath ── */
+
+  .piece-lightbox__caption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    padding-top: var(--space-4);
+  }
+
+  .piece-lightbox__artist {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 800;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--color-accent-dim);
+    transition:
+      color var(--duration-fast) ease,
+      text-decoration-color var(--duration-fast) ease;
+  }
+
+  .piece-lightbox__artist:hover,
+  .piece-lightbox__artist:focus-visible {
+    color: var(--color-accent);
+    text-decoration-color: var(--color-accent);
+  }
+
+  .piece-lightbox__styles {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .piece-lightbox__style {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    background: transparent;
+    border: var(--border-width) solid var(--color-border);
+    padding: var(--space-1) var(--space-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition:
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease;
+  }
+
+  .piece-lightbox__style:hover,
+  .piece-lightbox__style:focus-visible {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .piece-lightbox__style:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .piece-lightbox__ctrl,
+    .piece-lightbox__artist,
+    .piece-lightbox__style {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLDialogElement>('.piece-lightbox').forEach(dialog => {
+    const slides  = Array.from(dialog.querySelectorAll<HTMLElement>('.piece-lightbox__slide'))
+    const counter = dialog.querySelector<HTMLElement>('[data-count-template]')
+    const pieceId = dialog.id.replace('piece-lb-', '')
+    let index = 0
+
+    function setIndex(i: number) {
+      index = (i + slides.length) % slides.length
+      slides.forEach((slide, j) => { slide.hidden = j !== index })
+      if (counter) {
+        counter.textContent = counter.dataset.countTemplate!.replace('{current}', String(index + 1))
+      }
+    }
+
+    // Any element on the page carrying data-piece-open=<id> opens this dialog
+    document.querySelectorAll<HTMLElement>(`[data-piece-open="${pieceId}"]`).forEach(opener => {
+      opener.addEventListener('click', () => {
+        setIndex(0)
+        dialog.showModal()
+      })
+    })
+
+    dialog.querySelector('[data-prev]')?.addEventListener('click', () => setIndex(index - 1))
+    dialog.querySelector('[data-next]')?.addEventListener('click', () => setIndex(index + 1))
+    dialog.querySelector('[data-close]')?.addEventListener('click', () => dialog.close())
+
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft')  setIndex(index - 1)
+      if (e.key === 'ArrowRight') setIndex(index + 1)
+    })
+
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close()
+    })
+
+    // Artist link: when the artist's card is on this page (/sobre), a hash-only
+    // navigation would do nothing — close open dialogs and open the card's
+    // detail popup directly. On other pages, follow the link normally.
+    const artistLink = dialog.querySelector<HTMLAnchorElement>('.piece-lightbox__artist')
+    artistLink?.addEventListener('click', (e) => {
+      const slug = new URL(artistLink.href).hash.slice(1)
+      const card = document.querySelector<HTMLElement>(`.artist-card[data-artist-id="${CSS.escape(slug)}"]`)
+      if (!card) return
+      e.preventDefault()
+      document.querySelectorAll<HTMLDialogElement>('dialog[open]').forEach(d => d.close())
+      history.replaceState(null, '', `#${slug}`)
+      card.scrollIntoView({ block: 'center' })
+      card.querySelector<HTMLDialogElement>('.artist-card__detail')?.showModal()
+    })
+
+    // Style tag: activate the local filter when the page has one (/trabalhos),
+    // otherwise follow the link to /trabalhos?estilo=<name>
+    dialog.querySelectorAll<HTMLAnchorElement>('[data-style-jump]').forEach(styleLink => {
+      styleLink.addEventListener('click', (e) => {
+        const target = document.querySelector<HTMLButtonElement>(
+          `[data-filter-group="style"] [data-filter-value="${CSS.escape(styleLink.dataset.styleJump ?? '')}"]`
+        )
+        if (target) {
+          e.preventDefault()
+          dialog.close()
+          target.click()
+        }
+      })
+    })
+  })
+</script>

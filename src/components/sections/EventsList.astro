@@ -2,32 +2,28 @@
 /**
  * EventsList.astro — upcoming events the studio attends
  * Used on: / (index, below Hero)
- * Data-driven from events.json — renders nothing when no upcoming events.
- * Past events are filtered at build time (site rebuilds on deploy).
+ * Data-driven from Directus (build time) — renders nothing when no upcoming events.
+ * Past events are filtered at build time (daily scheduled rebuild keeps this fresh).
  */
 import ChainDivider from '@/components/shared/ChainDivider.astro'
 import { strings } from '@/content/strings.pt.ts'
-import allEvents from '@/data/events.json'
+import { getUpcomingEvents, type ShopEvent } from '@/lib/directus.ts'
 
 const { events } = strings
 
-const today = new Date()
-today.setHours(0, 0, 0, 0)
-
-const upcoming = allEvents
-  .filter(ev => new Date(ev.endDate ?? ev.date) >= today)
+const upcoming = (await getUpcomingEvents())
   .sort((a, b) => a.date.localeCompare(b.date))
 
 const dayFmt   = new Intl.DateTimeFormat('pt-PT', { day: '2-digit' })
 const monthFmt = new Intl.DateTimeFormat('pt-PT', { month: 'short' })
 
-function formatDay(ev: (typeof allEvents)[number]): string {
+function formatDay(ev: ShopEvent): string {
   const start = dayFmt.format(new Date(ev.date))
   if (!ev.endDate) return start
   return `${start}–${dayFmt.format(new Date(ev.endDate))}`
 }
 
-function formatMonth(ev: (typeof allEvents)[number]): string {
+function formatMonth(ev: ShopEvent): string {
   return monthFmt.format(new Date(ev.date)).replace('.', '')
 }
 ---

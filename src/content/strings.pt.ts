@@ -30,6 +30,11 @@ export const strings = {
         description: 'Marca a tua sessão de tatuagem ou piercing na Outcast. Escolhe o teu artista e descreve o teu projeto.',
         ogImage:     '/images/og/marcar.jpg',
       },
+      trabalhos: {
+        title:       'Últimos Trabalhos — Outcast Tattoo & Piercing',
+        description: 'Os trabalhos mais recentes da equipa Outcast — tatuagens e piercings feitos em Leiria. Filtra por serviço, artista ou estilo.',
+        ogImage:     '/images/og/trabalhos.jpg',
+      },
     },
   },
 
@@ -37,9 +42,10 @@ export const strings = {
   // Navigation
   // -------------------------------------------------------------------------
   nav: {
-    home:   'Início',
-    sobre:  'Artistas',
-    marcar: 'Marcar',
+    home:      'Início',
+    sobre:     'Artistas',
+    trabalhos: 'Trabalhos',
+    marcar:    'Marcar',
     ariaLabel: 'Navegação principal',
     menuOpen:  'Abrir menu',
     menuClose: 'Fechar menu',
@@ -66,6 +72,27 @@ export const strings = {
   },
 
   // -------------------------------------------------------------------------
+  // Latest pieces — /trabalhos archive + landing teaser
+  // -------------------------------------------------------------------------
+  trabalhos: {
+    heading:      'Últimos Trabalhos',
+    intro:        'Trabalho recente, direto da agulha.',
+    teaserCta:    'Ver todos os trabalhos',
+    empty:        'Sem trabalhos para mostrar com estes filtros.',
+    pieceAlt:     'Trabalho de {artist}',
+    viewArtist:   'Ver artista',
+    imageCount:   '{current} de {total}',
+    filters: {
+      label:    'Filtrar',
+      service:  'Serviço',
+      artist:   'Artista',
+      style:    'Estilo',
+      all:      'Todos',
+      clear:    'Limpar filtros',
+    },
+  },
+
+  // -------------------------------------------------------------------------
   // Loader
   // -------------------------------------------------------------------------
   loader: {
@@ -86,6 +113,7 @@ export const strings = {
     heading:     'Os Artistas',
     intro:       'Cinco artistas. Uma linguagem. Arte feita para durar.',
     bookCta:     'Marcar com {name}',
+    bookHint:    'Seleciona pelo menos um dos serviços primeiro.',
     specialties: 'Especialidades',
     viewWork:    'Ver trabalho',
     portfolioAlt: 'Trabalho de {name}',
@@ -197,10 +225,13 @@ export const strings = {
   // Footer
   // -------------------------------------------------------------------------
   footer: {
-    tagline:   'Arte personalizada. Leiria, Portugal.',
-    instagram: 'Instagram',
-    address:   'Rua da Escola, Urbanização Planalto 6, 2415-449 Leiria',
-    copyright: '© {year} Outcast Tattoo & Piercing',
+    tagline:      'Arte personalizada. Leiria, Portugal.',
+    social:       'Redes',
+    instagram:    'Instagram',
+    tiktok:       'TikTok',
+    addressLabel: 'Morada',
+    address:      'Rua da Escola, Urbanização Planalto 6\n2415-449 Leiria',
+    copyright:    '© {year} Outcast Tattoo & Piercing',
     hours: {
       label:    'Horário',
       weekdays: 'Ter – Sex: 11h–19h',
@@ -227,6 +258,7 @@ export const strings = {
     ],
     priceRange: '€€',
     instagram:  'https://www.instagram.com/outcast.tattoopiercing/',
+    tiktok:     'https://www.tiktok.com/@outcasttattoopier',
   },
 } as const
 

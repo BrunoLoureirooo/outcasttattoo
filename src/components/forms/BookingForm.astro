@@ -1,7 +1,9 @@
 ---
+import { Image } from 'astro:assets'
 import { strings } from '@/content/strings.pt.ts'
-import artists from '@/data/artists.json'
+import { getArtists } from '@/lib/directus.ts'
 
+const artists = await getArtists()
 const { marcar, common } = strings
 const formspreeId = import.meta.env.PUBLIC_FORMSPREE_ID ?? 'PLACEHOLDER'
 const formspreeUrl = `https://formspree.io/f/${formspreeId}`
@@ -64,7 +66,13 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
                 aria-pressed="false"
                 aria-label={a.name}
               >
-                <span class="artist-pick-card__avatar" aria-hidden="true">{a.name.charAt(0)}</span>
+                {a.portrait ? (
+                  <span class="artist-pick-card__avatar artist-pick-card__avatar--photo" aria-hidden="true">
+                    <Image src={a.portrait} alt="" inferSize widths={[320, 480, 720]} sizes="(max-width: 640px) 90vw, 40vw" class="artist-pick-card__avatar-img" />
+                  </span>
+                ) : (
+                  <span class="artist-pick-card__avatar" aria-hidden="true">{a.name.charAt(0)}</span>
+                )}
                 <div class="artist-pick-card__details">
                   <span class="artist-pick-card__name">{a.name}</span>
                   <div class="artist-pick-card__tags">
@@ -117,7 +125,13 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
                 aria-pressed="false"
                 aria-label={a.name}
               >
-                <span class="artist-pick-card__avatar" aria-hidden="true">{a.name.charAt(0)}</span>
+                {a.portrait ? (
+                  <span class="artist-pick-card__avatar artist-pick-card__avatar--photo" aria-hidden="true">
+                    <Image src={a.portrait} alt="" inferSize widths={[320, 480, 720]} sizes="(max-width: 640px) 90vw, 40vw" class="artist-pick-card__avatar-img" />
+                  </span>
+                ) : (
+                  <span class="artist-pick-card__avatar" aria-hidden="true">{a.name.charAt(0)}</span>
+                )}
                 <div class="artist-pick-card__details">
                   <span class="artist-pick-card__name">{a.name}</span>
                   <div class="artist-pick-card__tags">
@@ -577,6 +591,8 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
     display: flex;
     gap: var(--space-3);
     flex-wrap: wrap;
+    /* legend margins are unreliable cross-browser — space from the wrapper */
+    margin-top: var(--space-4);
   }
 
   .service-btn {
@@ -639,8 +655,16 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
       border-color var(--duration-fast) ease;
   }
 
-  .artist-pick-card:hover:not(.dimmed) {
+  /* Expanded state: selection always, hover only on devices with real hover
+     (on touch, a tap would stick a non-selected card in its expanded state) */
+  .artist-pick-card[aria-pressed="true"]:not(.dimmed) {
     flex: 5 1 0;
+  }
+
+  @media (hover: hover) {
+    .artist-pick-card:hover:not(.dimmed) {
+      flex: 5 1 0;
+    }
   }
 
   .artist-pick-card[aria-pressed="true"] {
@@ -649,7 +673,9 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
 
   .artist-pick-card.dimmed {
     opacity: 0.25;
-    pointer-events: none;
+    /* no pointer-events: none — the card must still catch hover so the
+       blocked cursor communicates why it can't be picked */
+    cursor: not-allowed;
   }
 
   /* Initial — main visual in narrow state, ghost in expanded state */
@@ -671,12 +697,48 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
     justify-content: center;
   }
 
-  .artist-pick-card:hover:not(.dimmed) .artist-pick-card__avatar {
+  .artist-pick-card[aria-pressed="true"]:not(.dimmed) .artist-pick-card__avatar:not(.artist-pick-card__avatar--photo) {
     position: absolute;
     inset: 0;
     font-size: clamp(8rem, 20vw, 14rem);
     color: oklch(0.96 0 0 / 0.05);
     z-index: 0;
+  }
+
+  @media (hover: hover) {
+    .artist-pick-card:hover:not(.dimmed) .artist-pick-card__avatar:not(.artist-pick-card__avatar--photo) {
+      position: absolute;
+      inset: 0;
+      font-size: clamp(8rem, 20vw, 14rem);
+      color: oklch(0.96 0 0 / 0.05);
+      z-index: 0;
+    }
+  }
+
+  /* Portrait avatar — full-bleed card background when the artist has one */
+  .artist-pick-card__avatar--photo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .artist-pick-card__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(45%) contrast(1.05) brightness(0.85);
+    transition: filter 0.3s ease, transform 0.45s var(--ease-out-expo);
+  }
+
+  .artist-pick-card[aria-pressed="true"] .artist-pick-card__avatar-img {
+    filter: grayscale(0%) contrast(1.05) brightness(1);
+  }
+
+  @media (hover: hover) {
+    .artist-pick-card:hover:not(.dimmed) .artist-pick-card__avatar-img {
+      filter: grayscale(0%) contrast(1.05) brightness(1);
+      transform: scale(1.03);
+    }
   }
 
   /* Dice card SVG avatar */
@@ -687,10 +749,18 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
     transition: color 0.3s ease;
   }
 
-  .artist-pick-card--dice:hover:not(.dimmed) .artist-pick-card__avatar svg {
+  .artist-pick-card--dice[aria-pressed="true"]:not(.dimmed) .artist-pick-card__avatar svg {
     width: clamp(60px, 12vw, 100px);
     height: clamp(60px, 12vw, 100px);
     color: oklch(0.96 0 0 / 0.05);
+  }
+
+  @media (hover: hover) {
+    .artist-pick-card--dice:hover:not(.dimmed) .artist-pick-card__avatar svg {
+      width: clamp(60px, 12vw, 100px);
+      height: clamp(60px, 12vw, 100px);
+      color: oklch(0.96 0 0 / 0.05);
+    }
   }
 
   /* Details — hidden in narrow state, revealed when selected */
@@ -711,9 +781,16 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
     pointer-events: none;
   }
 
-  .artist-pick-card:hover:not(.dimmed) .artist-pick-card__details {
+  .artist-pick-card[aria-pressed="true"] .artist-pick-card__details {
     opacity: 1;
     transform: none;
+  }
+
+  @media (hover: hover) {
+    .artist-pick-card:hover:not(.dimmed) .artist-pick-card__details {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .artist-pick-card__name {
@@ -1213,10 +1290,13 @@ const formspreeUrl = `https://formspree.io/f/${formspreeId}`
       hide(stepSubmit)
     }
 
-    // Dim cards that don't match active services
+    // Dim cards whose artist doesn't offer the service of the picker they sit
+    // in — a tattoo-only artist must grey out inside the piercing picker even
+    // when both services are active
     document.querySelectorAll<HTMLElement>('.artist-pick-card').forEach(card => {
       const cardServices = (card.dataset.services ?? '').split(',')
-      const matches = cardServices.some(s => activeServices.has(s))
+      const pickerService = card.dataset.pickerTarget ?? ''
+      const matches = activeServices.has(pickerService) && cardServices.includes(pickerService)
       card.classList.toggle('dimmed', !matches)
     })
   }

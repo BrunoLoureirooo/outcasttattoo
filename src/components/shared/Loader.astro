@@ -67,7 +67,8 @@ import { strings } from '@/content/strings.pt.ts'
     background: var(--color-bg);
     display: grid;
     place-items: center;
-    pointer-events: none;
+    /* clickable while visible — a click skips the animation */
+    cursor: pointer;
 
     animation: loader-exit 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.6s both;
   }
@@ -178,8 +179,10 @@ import { strings } from '@/content/strings.pt.ts'
       sector.setAttribute('d', '')
       loader.style.cssText = 'opacity:1;visibility:visible;animation:none'
 
+      let skipped = false
       let startTime: number | null = null
       function tick(now: number) {
+        if (skipped) return
         if (startTime === null) startTime = now
         const elapsed  = now - startTime - DELAY
         const progress = Math.max(0, Math.min(1, elapsed / DURATION))
@@ -188,11 +191,23 @@ import { strings } from '@/content/strings.pt.ts'
       }
       requestAnimationFrame(tick)
 
-      setTimeout(() => {
-        loader.style.transition = 'opacity 0.5s'
-        loader.style.opacity = '0'
-        setTimeout(() => loader.remove(), 500)
-      }, 1600)
+      const exitTimer = setTimeout(dismiss, 1600)
+
+      function dismiss() {
+        loader!.style.transition = 'opacity 0.5s'
+        loader!.style.opacity = '0'
+        setTimeout(() => loader!.remove(), 500)
+      }
+
+      // Impatient users: a click anywhere skips straight to the page
+      loader.addEventListener('click', () => {
+        if (skipped) return
+        skipped = true
+        clearTimeout(exitTimer)
+        loader!.style.transition = 'opacity 0.2s'
+        loader!.style.opacity = '0'
+        setTimeout(() => loader!.remove(), 200)
+      })
     }
 
     runCycle()

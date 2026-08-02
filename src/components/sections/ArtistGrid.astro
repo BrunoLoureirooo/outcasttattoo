@@ -2,13 +2,14 @@
 /**
  * ArtistGrid.astro — grid of all artist cards
  * Used on: /sobre
- * Data-driven from artists.json — no hardcoding.
+ * Data-driven from Directus (build time) — no hardcoding.
  */
 import ArtistCard from '@/components/ui/ArtistCard.astro'
 import { strings } from '@/content/strings.pt.ts'
-import artists from '@/data/artists.json'
+import { getArtists } from '@/lib/directus.ts'
 
 const { sobre } = strings
+const artists = await getArtists()
 ---
 
 <section class="artist-grid-section" aria-labelledby="artists-heading">

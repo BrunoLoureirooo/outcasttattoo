@@ -43,8 +43,8 @@
   --font-body:    'IM Fell English', serif;
 
   /* Type scale — fluid, perfect fourth (1.333) ratio */
-  --text-xs:   clamp(0.69rem,  0.65rem + 0.20vw, 0.75rem);
-  --text-sm:   clamp(0.83rem,  0.78rem + 0.25vw, 0.94rem);
+  --text-xs:   clamp(0.875rem, 0.85rem + 0.125vw, 0.9375rem); /* 14px floor — a11y small-text minimum */
+  --text-sm:   clamp(0.9375rem, 0.90rem + 0.25vw, 1.0625rem);
   --text-base: clamp(1rem,     0.94rem + 0.30vw, 1.125rem);
   --text-lg:   clamp(1.2rem,   1.10rem + 0.50vw, 1.4rem);
   --text-xl:   clamp(1.44rem,  1.30rem + 0.70vw, 1.75rem);

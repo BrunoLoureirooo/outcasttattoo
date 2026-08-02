@@ -1,0 +1,27 @@
+---
+import Base from '@/layouts/Base.astro'
+import Nav from '@/components/shared/Nav.astro'
+import Footer from '@/components/shared/Footer.astro'
+import PiecesGallery from '@/components/sections/PiecesGallery.astro'
+import { strings } from '@/content/strings.pt.ts'
+
+const { pages } = strings.meta
+---
+
+<Base
+  title={pages.trabalhos.title}
+  description={pages.trabalhos.description}
+  ogImage={pages.trabalhos.ogImage}
+>
+  <Nav />
+  <main id="main-content">
+    <PiecesGallery />
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  main {
+    padding-top: var(--nav-height); /* section handles its own padding */
+  }
+</style>

@@ -4,19 +4,16 @@ import Nav from '@/components/shared/Nav.astro'
 import Footer from '@/components/shared/Footer.astro'
 import Hero from '@/components/sections/Hero.astro'
 import EventsList from '@/components/sections/EventsList.astro'
+import LatestPieces from '@/components/sections/LatestPieces.astro'
 import LocationMap from '@/components/sections/LocationMap.astro'
 import Loader from '@/components/shared/Loader.astro'
 import { strings } from '@/content/strings.pt.ts'
-import events from '@/data/events.json'
+import { getUpcomingEvents } from '@/lib/directus.ts'
 
 const { pages } = strings.meta
 
-// JSON-LD Event markup for upcoming events (build-time filter matches EventsList)
-const today = new Date()
-today.setHours(0, 0, 0, 0)
-
-const eventsJsonLd = events
-  .filter(ev => new Date(ev.endDate ?? ev.date) >= today)
+// JSON-LD Event markup for upcoming events (same build-time filter as EventsList)
+const eventsJsonLd = (await getUpcomingEvents())
   .map(ev => ({
     '@context': 'https://schema.org',
     '@type':    'Event',
@@ -49,6 +46,7 @@ const eventsJsonLd = events
   <Nav />
   <main id="main-content">
     <Hero />
+    <LatestPieces />
     <EventsList />
   </main>
   <LocationMap />
